@@ -3,3 +3,4 @@ function greet(person) {
 }
 var user = "World";
 document.body.innerHTML = greet(user);
+//# sourceMappingURL=main.js.map
