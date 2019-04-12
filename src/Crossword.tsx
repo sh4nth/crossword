@@ -19,7 +19,6 @@ export class Crossword extends Component<{}, State> {
         for (var i = 0; i < N; i++) {
             for (var j = 0; j < N; j++) {
                 boxes.push(new Square({id: "B" + i + "-" + j, fillable: shouldBeBlack(i,j), letter: "A", x: i, y: j, clueNumber:"" + (1+i+N*j) }));
-                console.log((i*N+j));
             }
         }
         this.state = { boxes: boxes };
@@ -32,6 +31,10 @@ export class Crossword extends Component<{}, State> {
         });
         return renderedBoxes;
     };
+
+    public componentDidMount() {
+        console.log("ComponentDidMount Crossword");
+    }
 
     render() {
         return (<div className="Crossword">
