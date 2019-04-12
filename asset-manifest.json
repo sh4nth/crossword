@@ -1,13 +1,13 @@
 {
-  "main.css": "/crossword/static/css/main.c608c004.chunk.css",
-  "main.js": "/crossword/static/js/main.88832603.chunk.js",
-  "main.js.map": "/crossword/static/js/main.88832603.chunk.js.map",
+  "main.css": "/crossword/static/css/main.9d539552.chunk.css",
+  "main.js": "/crossword/static/js/main.308b969a.chunk.js",
+  "main.js.map": "/crossword/static/js/main.308b969a.chunk.js.map",
   "runtime~main.js": "/crossword/static/js/runtime~main.59db1c93.js",
   "runtime~main.js.map": "/crossword/static/js/runtime~main.59db1c93.js.map",
   "static/js/2.d6a534e5.chunk.js": "/crossword/static/js/2.d6a534e5.chunk.js",
   "static/js/2.d6a534e5.chunk.js.map": "/crossword/static/js/2.d6a534e5.chunk.js.map",
   "index.html": "/crossword/index.html",
-  "precache-manifest.f50aed198377a33094a833175a2ceed7.js": "/crossword/precache-manifest.f50aed198377a33094a833175a2ceed7.js",
+  "precache-manifest.8c15d1269a7f2f00b691d4384a8fa069.js": "/crossword/precache-manifest.8c15d1269a7f2f00b691d4384a8fa069.js",
   "service-worker.js": "/crossword/service-worker.js",
-  "static/css/main.c608c004.chunk.css.map": "/crossword/static/css/main.c608c004.chunk.css.map"
+  "static/css/main.9d539552.chunk.css.map": "/crossword/static/css/main.9d539552.chunk.css.map"
 }
