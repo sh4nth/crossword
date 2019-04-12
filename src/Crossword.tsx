@@ -6,7 +6,7 @@ type State = {
 };
 
 function shouldBeBlack(i:number, j:number) {
-    let randomFactor = (i*j*i*j*i + j*j*j + i*i*i*i -3*j + j*j)%100 > 80;
+    let randomFactor = (i*j*i*j*i + j*j*j + i*i*i*i -3*j + j*j)%100 > 99;
     return !(randomFactor || (i%2 == 1 && j%2 == 1))
 }
 
@@ -18,14 +18,15 @@ export class Crossword extends Component<{}, State> {
         let boxes = [];
         for (var i = 0; i < N; i++) {
             for (var j = 0; j < N; j++) {
-                boxes.push(new Square({ id: "B" + i + "-" + j, fillable: shouldBeBlack(i,j), letter: "A", x: i, y: j }));
+                boxes.push(new Square({id: "B" + i + "-" + j, fillable: shouldBeBlack(i,j), letter: "A", x: i, y: j, clueNumber:"" + (1+i+N*j) }));
+                console.log((i*N+j));
             }
         }
         this.state = { boxes: boxes };
     }
 
     renderBoxes = () => {
-        let renderedBoxes: Array<JSX.Element> = [];
+        let renderedBoxes: Array<any> = [];
         this.state.boxes.forEach(box => {
             renderedBoxes.push(box.render());
         });

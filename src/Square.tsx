@@ -6,6 +6,7 @@ export type State = {
     y: number
     id: string
     letter: string
+    clueNumber: string
     fillable: boolean
 }
 
@@ -46,15 +47,14 @@ export class Square extends Component<{}, State> {
 
 
     render() {
+        let svgElements = [];
+        svgElements.push(<rect x={this.state.x * boxSize} y={this.state.y * boxSize} width={boxSize} height={boxSize} style={getStyle(this.state.fillable)}></rect>);
         if (this.state.fillable) {
-            return (<g key={this.state.id} id={this.state.id}>
-                <rect x={this.state.x * boxSize} y={this.state.y * boxSize} width={boxSize} height={boxSize} style={getStyle(this.state.fillable)}></rect>
-                <text x={this.state.x * boxSize + 2} y={this.state.y * boxSize + 10} style={clueStyle}>{(this.state.x + this.state.y) % 30}</text>
-                <text x={(this.state.x + 0.35) * boxSize} y={(this.state.y + 0.65) * boxSize} style={textStyle}>{this.state.letter}</text>
-            </g>);
+            svgElements.push(<text x={(this.state.x + 0.35) * boxSize} y={(this.state.y + 0.65) * boxSize} style={textStyle}>{this.state.letter}</text>);
+            if (this.state.clueNumber != "") {
+                svgElements.push(<text x={this.state.x * boxSize + 2} y={this.state.y * boxSize + 10} style={clueStyle}>{this.state.clueNumber}</text>);
+            }
         }
-        return (<g key={this.state.id} id={this.state.id}>
-            <rect x={this.state.x * boxSize} y={this.state.y * boxSize} width={boxSize} height={boxSize} style={getStyle(this.state.fillable)}></rect>
-        </g>);
+        return (<g key={this.state.id}>{svgElements}</g>);
     }
 }
