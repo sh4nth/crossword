@@ -1,7 +1,7 @@
-import React, { Component, CSSProperties, SVGAttributes } from 'react';
+import React, { Component, CSSProperties, SVGAttributes, KeyboardEvent } from 'react';
 
 
-export type State = {
+export type BoxState = {
     x: number
     y: number
     id: string
@@ -41,37 +41,55 @@ const textStyle = {
 const groupStyle = {
     pointerEvents: 'bounding-box'
 };
-export class Square extends Component<{}, State> {
-    constructor(props: State) {
+export class Square extends Component<BoxState, BoxState> {
+    constructor(props: BoxState) {
         super(props);
-        this.state = props;
-    }
-
-    public componentDidMount() {
-        console.log("ComponentDidMount" + this.state.id);
+        this.state = {
+            x: props.x,
+            y: props.y,
+            id: props.id,
+            letter: props.letter,
+            clueNumber: props.clueNumber,
+            fillable: props.fillable,
+        };
     }
 
     public onClick() {
-        console.log("clicked " + this.state.id);
-        let oldFillable = this.state.fillable;
-        if (this.componentDidMount) {
         this.setState((state) => {
-            return {fillable: !state.fillable};
+            return { fillable: !state.fillable };
         });
-        } else {
-            console.log("DID NOT MOUNT + " + this.state.id);
-        }
-        console.log("Now ... " + this.state.id + " tried " + !oldFillable + ", and is " + this.state.fillable);
     }
 
     public render() {
-        console.log("Rendering ... " + this.state.id + " is " + this.state.fillable);
         let svgElements = [];
-        svgElements.push(<rect key={"box" + this.state.id} onClick={(e) => this.onClick()} x={this.state.x * boxSize} y={this.state.y * boxSize} width={boxSize} height={boxSize} style={getStyle(this.state.fillable)}></rect>);
+        svgElements.push(
+            <rect
+            key={"box" + this.state.id}
+                onClick={(e) => this.onClick()}
+                x={this.state.x * boxSize}
+                y={this.state.y * boxSize}
+                width={boxSize}
+                height={boxSize}
+                style={getStyle(this.state.fillable)}>
+            </rect>);
         if (this.state.fillable) {
-            svgElements.push(<text key={"letter" + this.state.id} onClick={(e) => this.onClick()} x={(this.state.x + 0.35) * boxSize} y={(this.state.y + 0.65) * boxSize} style={textStyle}>{this.state.letter}</text>);
+            svgElements.push(
+                <text
+                    key={"letter" + this.state.id}
+                    onClick={(e) => this.onClick()}
+                    x={(this.state.x + 0.35) * boxSize}
+                    y={(this.state.y + 0.65) * boxSize}
+                    style={textStyle}>{this.state.letter}
+                </text>);
             if (this.state.clueNumber != "") {
-                svgElements.push(<text key={"clue" + this.state.id} onClick={(e) => this.onClick()} x={this.state.x * boxSize + 2} y={this.state.y * boxSize + 10} style={clueStyle}>{this.state.clueNumber}</text>);
+                svgElements.push(
+                    <text
+                        key={"clue" + this.state.id}
+                        onClick={(e) => this.onClick()}
+                        x={this.state.x * boxSize + 2}
+                        y={this.state.y * boxSize + 10}
+                        style={clueStyle}>{this.state.clueNumber}
+                    </text>);
             }
         }
         return (<g key={this.state.id}>{svgElements}</g>);
