@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Square } from "./Square";
+import { Square, boxSize } from "./Square";
 
 type State = {
     boxes: Array<Square>;
@@ -10,12 +10,14 @@ function shouldBeBlack(i:number, j:number) {
     return !(randomFactor || (i%2 == 1 && j%2 == 1))
 }
 
+const N = 5;
+
 export class Crossword extends Component<{}, State> {
     constructor(props: State) {
         super(props);
         let boxes = [];
-        for (var i = 0; i < 15; i++) {
-            for (var j = 0; j < 15; j++) {
+        for (var i = 0; i < N; i++) {
+            for (var j = 0; j < N; j++) {
                 boxes.push(new Square({ id: "B" + i + "-" + j, fillable: shouldBeBlack(i,j), letter: "A", x: i, y: j }));
             }
         }
@@ -32,7 +34,7 @@ export class Crossword extends Component<{}, State> {
 
     render() {
         return (<div className="Crossword">
-            <svg id="crossword-svg" viewBox="0 0 600 600" xmlns="http://www.w3.org/2000/svg">
+            <svg id="crossword-svg" viewBox={"0 0 " + N*boxSize + " " + N*boxSize} xmlns="http://www.w3.org/2000/svg">
                 {this.renderBoxes()}
             </svg>
         </div>);
