@@ -58,7 +58,6 @@ export class Square extends Component<BoxProps, {}> {
     // }
 
     public render() {
-        console.log("Render " + this.props.id + " with " + this.props.letter);
         let svgElements = [];
         svgElements.push(
             <rect
