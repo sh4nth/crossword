@@ -4,7 +4,7 @@ import { Crossword } from './Crossword';
 
 export class App extends Component {
   render() {
-    return (<div className="Crossword">
+    return (<div className="container">
       <Crossword />
     </div>);
   }

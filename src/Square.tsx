@@ -1,12 +1,16 @@
 import React, { Component, CSSProperties, SVGAttributes, KeyboardEvent } from 'react';
 
 
-export type BoxState = {
+export type BoxProps = {
     x: number
     y: number
     id: string
     letter: string
     clueNumber: string
+    fillable: boolean
+}
+
+type State = {
     fillable: boolean
 }
 
@@ -41,57 +45,48 @@ const textStyle = {
 const groupStyle = {
     pointerEvents: 'bounding-box'
 };
-export class Square extends Component<BoxState, BoxState> {
-    constructor(props: BoxState) {
+export class Square extends Component<BoxProps, {}> {
+    constructor(props: BoxProps) {
         super(props);
-        this.state = {
-            x: props.x,
-            y: props.y,
-            id: props.id,
-            letter: props.letter,
-            clueNumber: props.clueNumber,
-            fillable: props.fillable,
-        };
+        console.log("Construct <" + this.props.letter + ">");
     }
 
-    public onClick() {
-        this.setState((state) => {
-            return { fillable: !state.fillable };
-        });
-    }
+    // public onClick() {
+    //     this.setState((state) => {
+    //         return { fillable: !state.fillable };
+    //     });
+    // }
 
     public render() {
+        console.log("Render " + this.props.id + " with " + this.props.letter);
         let svgElements = [];
         svgElements.push(
             <rect
-            key={"box" + this.state.id}
-                onClick={(e) => this.onClick()}
-                x={this.state.x * boxSize}
-                y={this.state.y * boxSize}
+            key={"box" + this.props.id}
+                x={this.props.x * boxSize}
+                y={this.props.y * boxSize}
                 width={boxSize}
                 height={boxSize}
-                style={getStyle(this.state.fillable)}>
+                style={getStyle(this.props.fillable)}>
             </rect>);
-        if (this.state.fillable) {
+        if (this.props.fillable) {
             svgElements.push(
                 <text
-                    key={"letter" + this.state.id}
-                    onClick={(e) => this.onClick()}
-                    x={(this.state.x + 0.35) * boxSize}
-                    y={(this.state.y + 0.65) * boxSize}
-                    style={textStyle}>{this.state.letter}
+                    key={"letter" + this.props.id}
+                    x={(this.props.x + 0.35) * boxSize}
+                    y={(this.props.y + 0.65) * boxSize}
+                    style={textStyle}>{this.props.letter}
                 </text>);
-            if (this.state.clueNumber != "") {
+            if (this.props.clueNumber != "") {
                 svgElements.push(
                     <text
-                        key={"clue" + this.state.id}
-                        onClick={(e) => this.onClick()}
-                        x={this.state.x * boxSize + 2}
-                        y={this.state.y * boxSize + 10}
-                        style={clueStyle}>{this.state.clueNumber}
+                        key={"clue" + this.props.id}
+                        x={this.props.x * boxSize + 2}
+                        y={this.props.y * boxSize + 10}
+                        style={clueStyle}>{this.props.clueNumber}
                     </text>);
             }
         }
-        return (<g key={this.state.id}>{svgElements}</g>);
+        return (<g key={this.props.id}>{svgElements}</g>);
     }
 }
