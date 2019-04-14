@@ -1,6 +1,6 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "Crossword Creator",
+  "name": "Create a Crossword",
   "icons": [
     {
       "src": "favicon.ico",
