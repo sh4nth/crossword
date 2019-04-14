@@ -6,10 +6,12 @@ type Point = {
     i: number,
     j: number,
 }
+
 type State = {
     boxes: Array<Array<BoxProps>>,
     point: Point,
     isSolver: boolean,
+    isHorizontal: boolean,
 };
 
 function shouldBeBlack(i:number, j:number) {
@@ -38,12 +40,31 @@ export class Crossword extends Component<{}, State> {
         });
         console.log(i + "," + j);
         console.log(event.clientX + ", " + event.clientY);
+        if (this.nameInput) { 
+            this.nameInput.focus();
+        }
+    }
+
+    getNextPoint(p: Point) {
+        if (p.i<0 || p.j < 0) {
+            return p;
+        }
+        if (this.state.isHorizontal) {
+            if (p.i < N-1) {
+                return {i: p.i+1, j: p.j};
+            } else {
+                return p;
+            }
+        } else {
+            if (p.j < N-1) {
+                return {i: p.i, j: p.j+1};
+            } else {
+                return p;
+            }
+        }
     }
 
     public onKeyPress(key: KeyboardEvent) {
-        if (this.nameInput) {
-            this.nameInput.value="";
-        }
         let i = this.state.point.i;
         let j = this.state.point.j;
         if (i < 0 || j < 0 || !this.state.boxes[i][j].fillable) {
@@ -62,7 +83,7 @@ export class Crossword extends Component<{}, State> {
         this.setState(state => {
             let clonedBoxes = cloneDeep(state.boxes);
             clonedBoxes[state.point.i][state.point.j].letter = pressedKey;
-            return {boxes:clonedBoxes, };
+            return {boxes:clonedBoxes, point: this.getNextPoint(state.point)};
         });
     }
 
@@ -76,7 +97,11 @@ export class Crossword extends Component<{}, State> {
             }
             boxes.push(row);
         }
-        this.state = { boxes: boxes, point:{i: -1, j: -1}, isSolver: true};
+        this.state = { 
+            boxes: boxes, 
+            point:{i: -1, j: -1}, 
+            isSolver: true, 
+            isHorizontal: true};
     }
 
     getHiddenBoxStyle() : CSSProperties {
@@ -89,14 +114,8 @@ export class Crossword extends Component<{}, State> {
             position: "absolute",
             background: "transparent",
             border: "none",
+            textAlign: "center",
          }
-    }
-
-    componentDidMount(){
-        console.log("Getting focus");
-        if (this.nameInput) { 
-            this.nameInput.focus();
-        }
     }
 
       render() {
@@ -119,7 +138,7 @@ export class Crossword extends Component<{}, State> {
                     })
                 ))}
             </svg>
-            <input autoFocus ref={(input) => { this.nameInput = input; }} 
+            <input value="" ref={(input) => { this.nameInput = input; }} 
             maxLength={1} onKeyPress={(e) => this.onKeyPress(e)} style={this.getHiddenBoxStyle()}/>
         </div>);
     }
