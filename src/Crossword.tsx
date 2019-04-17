@@ -9,7 +9,7 @@ type Point = {
 
 type State = {
     boxes: Array<Array<BoxProps>>,
-    point: Point,
+    cursor: Point,
     isSolver: boolean,
     isHorizontal: boolean,
 };
@@ -36,7 +36,7 @@ export class Crossword extends Component<{}, State> {
         this.setState(state => {
             let clonedBoxes = cloneDeep(state.boxes);
             // clonedBoxes[i][j].fillable = !clonedBoxes[i][j].fillable;
-            return {boxes:clonedBoxes, point:{i: i, j: j}};
+            return {boxes:clonedBoxes, cursor:{i: i, j: j}};
         });
         console.log(i + "," + j);
         console.log(event.clientX + ", " + event.clientY);
@@ -64,17 +64,15 @@ export class Crossword extends Component<{}, State> {
         }
     }
 
-    public onKeyPress(key: KeyboardEvent) {
-        let i = this.state.point.i;
-        let j = this.state.point.j;
-        if (i < 0 || j < 0 || !this.state.boxes[i][j].fillable) {
-            console.log("Ignoring keyEvent " + key.key);
+    public onChange() {
+        let i = this.state.cursor.i;
+        let j = this.state.cursor.j;
+        if (i < 0 || j < 0 || !this.state.boxes[i][j].fillable || !this.nameInput) {
+            console.log("Ignoring changeEvent");
             return;
         }
-        let pressedKey = key.key
-        if (pressedKey.length > 1) {
-            throw new Error("Strange key: " + pressedKey)
-        } 
+
+        let pressedKey = this.nameInput.value;
         pressedKey = pressedKey.toUpperCase();
         if (pressedKey > 'Z' || pressedKey < 'A') {
             console.log("Ignoring key " + pressedKey);
@@ -82,8 +80,8 @@ export class Crossword extends Component<{}, State> {
         }
         this.setState(state => {
             let clonedBoxes = cloneDeep(state.boxes);
-            clonedBoxes[state.point.i][state.point.j].letter = pressedKey;
-            return {boxes:clonedBoxes, point: this.getNextPoint(state.point)};
+            clonedBoxes[state.cursor.i][state.cursor.j].letter = pressedKey;
+            return {boxes:clonedBoxes, cursor: this.getNextPoint(state.cursor)};
         });
     }
 
@@ -99,7 +97,7 @@ export class Crossword extends Component<{}, State> {
         }
         this.state = { 
             boxes: boxes, 
-            point:{i: -1, j: -1}, 
+            cursor:{i: -1, j: -1}, 
             isSolver: true, 
             isHorizontal: true};
     }
@@ -107,8 +105,8 @@ export class Crossword extends Component<{}, State> {
     getHiddenBoxStyle() : CSSProperties {
         let size = window.innerWidth > window.innerHeight ? window.innerHeight : window.innerWidth;
         return {
-            left: size * (this.state.point.i / N),
-            top: size * (this.state.point.j / N),
+            left: size * (this.state.cursor.i / N),
+            top: size * (this.state.cursor.j / N),
             width: size / N,
             height: size/ N,
             position: "absolute",
@@ -139,7 +137,7 @@ export class Crossword extends Component<{}, State> {
                 ))}
             </svg>
             <input value="" ref={(input) => { this.nameInput = input; }} 
-            maxLength={1} onKeyPress={(e) => this.onKeyPress(e)} style={this.getHiddenBoxStyle()}/>
+            maxLength={1} onChange={(e) => this.onChange()} style={this.getHiddenBoxStyle()}/>
         </div>);
     }
 }
