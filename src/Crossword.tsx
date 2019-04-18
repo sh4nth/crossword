@@ -119,11 +119,9 @@ export class Crossword extends Component<{}, State> {
             let row = []
             for (var j = 0; j < N; j++) {
                 row.push({
-                    id: i + "-" + j,
                     fillType: shouldBeBlack(i,j),
                     letter: "",
-                    y: i,
-                    x: j,
+                    coords: {y: i, x: j},
                     clueNumber:""});
             }
             boxes.push(row);
@@ -165,11 +163,9 @@ export class Crossword extends Component<{}, State> {
                 {this.state.boxes.map((row) => (
                     row.map((b) => {
                     return <Square 
-                        key={b.id}
+                        key={b.coords.x + "-" + b.coords.y}
                         fillType={b.fillType}
-                        y={b.y}
-                        x={b.x} 
-                        id={b.id}
+                        coords={b.coords}
                         letter={b.letter}
                         clueNumber={b.clueNumber} />
                     })
