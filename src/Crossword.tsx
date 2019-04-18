@@ -2,7 +2,7 @@ import React, { Component, MouseEvent, CSSProperties } from 'react';
 import { Square, boxSize, BoxProps, SquareType } from "./Square";
 import {cloneDeep, floor} from 'lodash';
 import Switch from '@material-ui/core/Switch';
-import {numberClues, Clue} from './Utils';
+import {numberClues, Clue} from './Clue';
 
 export type Point = {
     x: number,

@@ -5,7 +5,13 @@ type ClueType = {
     clueNumber: number,
     start: Point,
     length: number,
-    isAcross: boolean, 
+    isAcross: boolean,
+}
+
+type BacktrackingClueState = {
+    isFilled: boolean,
+    constraints: Array<string|null>,
+    intersectingClues: Array<Clue>,
 }
 
 export class Clue {
@@ -13,12 +19,14 @@ export class Clue {
     start: Point;
     length: number;
     isAcross: boolean;
+    state: BacktrackingClueState | null;
 
     constructor(props: ClueType) {
         this.clueNumber = props.clueNumber;
         this.start = props.start;
         this.length = props.length;
         this.isAcross = props.isAcross;
+        this.state = null;
     }
 
     public getPoints() {
