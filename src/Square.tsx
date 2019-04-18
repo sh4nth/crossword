@@ -1,91 +1,59 @@
-import React, { Component, CSSProperties, SVGAttributes, KeyboardEvent } from 'react';
-
+import React, { Component } from 'react';
+import { Point } from './Crossword';
 
 export type BoxProps = {
-    x: number
-    y: number
-    id: string
+    coords: Point
     letter: string
     clueNumber: string
-    fillable: boolean
+    fillType: SquareType
 }
 
-type State = {
-    fillable: boolean
+export enum SquareType {
+    BLACK = "blackSquare",
+    WHITE = "whiteSquare",
+    ACTIVE = "highlightSquare",
 }
 
 export const boxSize = 40;
 
-export function getStyle(fillable: boolean): CSSProperties {
-    return {
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        fill: fillable ? "white" : "black",
-        stroke: 'rgb(55,55,55)',
-        strokeWidth: 1,
-    };
-}
-
-const clueStyle = {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    fill: 'black',
-    fontSize: '10px',
-};
-
-const textStyle = {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    fill: 'black',
-    fontSize: '20px'
-};
-const groupStyle = {
-    pointerEvents: 'bounding-box'
-};
 export class Square extends Component<BoxProps, {}> {
+    pointToIdString(prefix:string) {
+        return prefix + this.props.coords.x + "-" + this.props.coords.y;
+    }
+    
     constructor(props: BoxProps) {
         super(props);
-        console.log("Construct <" + this.props.letter + ">");
     }
-
-    // public onClick() {
-    //     this.setState((state) => {
-    //         return { fillable: !state.fillable };
-    //     });
-    // }
 
     public render() {
         let svgElements = [];
         svgElements.push(
             <rect
-            key={"box" + this.props.id}
-                x={this.props.x * boxSize}
-                y={this.props.y * boxSize}
+                key={this.pointToIdString("box")}
+                x={this.props.coords.x * boxSize}
+                y={this.props.coords.y * boxSize}
                 width={boxSize}
                 height={boxSize}
-                style={getStyle(this.props.fillable)}>
+                className={this.props.fillType}>
             </rect>);
-        if (this.props.fillable) {
+        if (this.props.fillType) {
             svgElements.push(
                 <text
-                    key={"letter" + this.props.id}
-                    x={(this.props.x + 0.35) * boxSize}
-                    y={(this.props.y + 0.65) * boxSize}
-                    style={textStyle}>{this.props.letter}
+                    key={this.pointToIdString("text")}
+                    x={(this.props.coords.x + 0.35) * boxSize}
+                    y={(this.props.coords.y + 0.65) * boxSize}
+                    className="clueText">{this.props.letter}
                 </text>);
             if (this.props.clueNumber != "") {
                 svgElements.push(
                     <text
-                        key={"clue" + this.props.id}
-                        x={this.props.x * boxSize + 2}
-                        y={this.props.y * boxSize + 10}
-                        style={clueStyle}>{this.props.clueNumber}
+                        key={this.pointToIdString("clue")}
+                        x={this.props.coords.x * boxSize + 2}
+                        y={this.props.coords.y * boxSize + 10}
+                        className="clueNumber">{this.props.clueNumber}
                     </text>);
             }
         }
-        return (<g key={this.props.id}>{svgElements}</g>);
+        return (<g key={this.pointToIdString("group")}>{svgElements}</g>);
     }
 }
