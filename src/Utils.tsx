@@ -35,9 +35,9 @@ export class Clue {
 
     public contains(point: Point) {
         if (this.isAcross) {
-            return (point.y == this.start.y) && (this.start.x <= point.x) && (point.x <= this.start.x + this.length);
+            return (point.y == this.start.y) && (this.start.x <= point.x) && (point.x < this.start.x + this.length);
         } else {
-            return (point.x == this.start.x) && (this.start.y <= point.y) && (point.y <= this.start.y + this.length);
+            return (point.x == this.start.x) && (this.start.y <= point.y) && (point.y < this.start.y + this.length);
         }
     }
 }
