@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { Point } from './Crossword';
 
-
 export type BoxProps = {
     coords: Point
     letter: string

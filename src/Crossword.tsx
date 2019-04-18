@@ -1,8 +1,8 @@
-import React, { Component, KeyboardEvent, MouseEvent, createRef, CSSProperties } from 'react';
+import React, { Component, MouseEvent, CSSProperties } from 'react';
 import { Square, boxSize, BoxProps, SquareType } from "./Square";
-import {cloneDeep, floor, min} from 'lodash';
+import {cloneDeep, floor} from 'lodash';
 import Switch from '@material-ui/core/Switch';
-import {numberClues} from './Utils';
+import {numberClues, Clue} from './Utils';
 
 export type Point = {
     x: number,
@@ -16,9 +16,10 @@ enum Mode {
 
 type State = {
     boxes: Array<Array<BoxProps>>,
+    clues: Array<Clue>,
     cursor: Point,
     mode: Mode,
-    isHorizontal: boolean,
+    isAcross: boolean,
 };
 
 function shouldBeBlack(i:number, j:number) {
@@ -39,28 +40,70 @@ function containerStyle() {
     }
 }
 
-export class Crossword extends Component<{}, State> {
+type CrosswordProps = {
+    editable: boolean,
+}
+
+function cloneAndremoveHighlight(boxes: Array<Array<BoxProps>>) {
+    let clonedBoxes = cloneDeep(boxes);
+    clonedBoxes.forEach(row => row.forEach(box => {
+        if(box.fillType == SquareType.ACTIVE) {
+            box.fillType = SquareType.WHITE;
+        }
+    }));
+    return clonedBoxes;
+}
+
+export class Crossword extends Component<CrosswordProps, State> {
     nameInput: HTMLInputElement | null | undefined;
     div: HTMLDivElement | null | undefined;
 
     public onClick(event: MouseEvent) {
         let x = floor(N * event.clientX / event.currentTarget.clientWidth);
         let y = floor(N * event.clientY / event.currentTarget.clientHeight);
+        let point = {x: x, y: y};
         this.setState(state => {
-            let clonedBoxes = cloneDeep(state.boxes);
+            let clues = state.clues;
+            let clonedBoxes = cloneAndremoveHighlight(state.boxes);
+            let isAcross = state.isAcross;
             if (state.mode == Mode.GRID) {
                 if (clonedBoxes[y][x].fillType == SquareType.BLACK) {
                     clonedBoxes[y][x].fillType = SquareType.WHITE;
                 } else {
                     clonedBoxes[y][x].fillType = SquareType.BLACK;
                 }
-                numberClues(clonedBoxes);
+                clues = numberClues(clonedBoxes);
+            } else {
+                let possibleClues = clues.filter(c => c.contains(point));
+                console.log(possibleClues);
+                if (possibleClues.length > 2) {
+                    throw new Error("Should not be possible")
+                } else if (possibleClues.length == 2) {
+                    let clue = possibleClues.filter(c => c.isAcross == state.isAcross)[0];
+                    let points = clue.getPoints();
+                    console.log(points);
+                    points
+                        .forEach(
+                            p => {clonedBoxes[p.y][p.x].fillType = SquareType.ACTIVE;});
+                    console.log("Found 2");
+                } else if (possibleClues.length == 1) {
+                    let clue = possibleClues[0];
+                    isAcross = clue.isAcross;
+                    let points = clue.getPoints();
+                    console.log(points);
+                    points
+                        .forEach(
+                            p => {clonedBoxes[p.y][p.x].fillType = SquareType.ACTIVE;});
+                    console.log("Found just one");
+                } else {
+                    console.log("No clues at this point");
+                }
             }
-            return {boxes:clonedBoxes, cursor:{x: x, y: y}};
+            return {boxes:clonedBoxes, cursor:point, clues: clues, isAcross: isAcross};
         });
         console.log(x + "," + y);
-        console.log(event.clientX + ", " + event.clientY);
-        if (this.nameInput) { 
+        // console.log(event.clientX + ", " + event.clientY);
+        if (this.nameInput) {
             this.nameInput.focus();
         }
     }
@@ -69,7 +112,7 @@ export class Crossword extends Component<{}, State> {
         if (p.x<0 || p.y < 0) {
             return p;
         }
-        if (this.state.isHorizontal) {
+        if (this.state.isAcross) {
             if (p.x < N-1) {
                 return {x: p.x+1, y: p.y};
             } else {
@@ -87,8 +130,7 @@ export class Crossword extends Component<{}, State> {
     onToggleChange(e: React.ChangeEvent<HTMLInputElement>) {
         let newMode = !e.currentTarget.checked ? Mode.SOLVE : Mode.GRID;
         this.setState(state => {
-            return {mode: newMode}; });
-
+            return {mode: newMode, boxes: cloneAndremoveHighlight(state.boxes)}; });
     }
 
     onInputBoxChange() {
@@ -112,8 +154,12 @@ export class Crossword extends Component<{}, State> {
         });
     }
 
-    constructor(props: State) {
+    constructor(props: CrosswordProps) {
         super(props);
+        if (!props.editable) {
+            console.log("To implmenet loading crossword later");
+        }
+
         let boxes = [];
         for (var i = 0; i < N; i++) {
             let row = []
@@ -125,13 +171,13 @@ export class Crossword extends Component<{}, State> {
                     clueNumber:""});
             }
             boxes.push(row);
-            numberClues(boxes);
         }
         this.state = { 
-            boxes: boxes, 
+            boxes: boxes,
+            clues: numberClues(boxes),
             cursor:{x: -1, y: -1}, 
             mode: Mode.SOLVE, 
-            isHorizontal: true};
+            isAcross: true};
     }
 
     getHiddenBoxStyle() : CSSProperties {
@@ -153,7 +199,18 @@ export class Crossword extends Component<{}, State> {
          }
     }
 
-      render() {
+    hideIfNotEditable() : CSSProperties {
+        if(!this.props.editable) {
+            return {
+                visibility: "collapse",
+            };
+        }
+        return {
+            visibility: "visible",
+        };
+    }
+
+    render() {
         console.log("Render Cross" + this.state.boxes[0][0].letter);
         return (
         <div ref={div => {this.div = div;}} className="Crossword" style={containerStyle()} tabIndex={0}>
@@ -171,12 +228,13 @@ export class Crossword extends Component<{}, State> {
                     })
                 ))}
             </svg>
-            <div >Edit Grid<Switch value="Edit" onChange={e => this.onToggleChange(e)}/></div>
+            <div style={this.hideIfNotEditable()} >Edit Grid<Switch value="Edit" onChange={e => this.onToggleChange(e)}/></div>
             <input value="" ref={input => {this.nameInput = input;}} 
             maxLength={1} 
-            onClick={e => {this.setState(state => {return {isHorizontal: !state.isHorizontal}})}}
+            onClick={e => {this.setState(state => {return {isAcross: !state.isAcross}})}}
             onChange={e => this.onInputBoxChange()} 
             style={this.getHiddenBoxStyle()}/>
+            <div className="blackSquare"></div>
         </div>);
     }
 }

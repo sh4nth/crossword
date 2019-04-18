@@ -35,11 +35,12 @@
   stroke-width: 1;
 };
 
+/* For some reason this gets stripped out by React, need to add it explicitly in index.html */
 .highlightSquare {
   display: flex;
   align-items: center;
   justify-content: center;
-  fill: rgb(225,225,135);
+  fill: yellow;
   stroke: rgb(55,55,55);
   stroke-width: 1;
 };
