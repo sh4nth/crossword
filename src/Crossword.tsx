@@ -74,30 +74,7 @@ export class Crossword extends Component<CrosswordProps, State> {
                 }
                 clues = numberClues(clonedBoxes);
             } else {
-                let possibleClues = clues.filter(c => c.contains(point));
-                console.log(possibleClues);
-                if (possibleClues.length > 2) {
-                    throw new Error("Should not be possible")
-                } else if (possibleClues.length == 2) {
-                    let clue = possibleClues.filter(c => c.isAcross == state.isAcross)[0];
-                    let points = clue.getPoints();
-                    console.log(points);
-                    points
-                        .forEach(
-                            p => {clonedBoxes[p.y][p.x].fillType = SquareType.ACTIVE;});
-                    console.log("Found 2");
-                } else if (possibleClues.length == 1) {
-                    let clue = possibleClues[0];
-                    isAcross = clue.isAcross;
-                    let points = clue.getPoints();
-                    console.log(points);
-                    points
-                        .forEach(
-                            p => {clonedBoxes[p.y][p.x].fillType = SquareType.ACTIVE;});
-                    console.log("Found just one");
-                } else {
-                    console.log("No clues at this point");
-                }
+                isAcross = this.trySetIsAcrossAndHighlight(clonedBoxes, clues, state.isAcross, point);
             }
             return {boxes:clonedBoxes, cursor:point, clues: clues, isAcross: isAcross};
         });
@@ -106,6 +83,28 @@ export class Crossword extends Component<CrosswordProps, State> {
         if (this.nameInput) {
             this.nameInput.focus();
         }
+    }
+
+    trySetIsAcrossAndHighlight(clonedBoxes:Array<Array<BoxProps>>, clues: Array<Clue>, isAcross: boolean, point: Point) {
+        let possibleClues = clues.filter(c => c.contains(point));
+                console.log(possibleClues);
+                if (possibleClues.length > 2) {
+                    throw new Error("Should not be possible");
+                } else if (possibleClues.length == 2) {
+                    console.log("Trying for 2" + isAcross);
+                    let clue = possibleClues.filter(c => c.isAcross == isAcross)[0];
+                    console.log(clue);
+                    clue.getPoints().forEach(
+                            p => {clonedBoxes[p.y][p.x].fillType = SquareType.ACTIVE;});
+                } else if (possibleClues.length == 1) {
+                    let clue = possibleClues[0];
+                    isAcross = clue.isAcross;
+                    clue.getPoints().forEach(
+                            p => {clonedBoxes[p.y][p.x].fillType = SquareType.ACTIVE;});
+                } else {
+                    console.log("No clues at this point");
+                }
+                return isAcross;
     }
 
     getNextPoint(p: Point) {
@@ -231,7 +230,12 @@ export class Crossword extends Component<CrosswordProps, State> {
             <div style={this.hideIfNotEditable()} >Edit Grid<Switch value="Edit" onChange={e => this.onToggleChange(e)}/></div>
             <input value="" ref={input => {this.nameInput = input;}} 
             maxLength={1} 
-            onClick={e => {this.setState(state => {return {isAcross: !state.isAcross}})}}
+            onClick={e => {this.setState(state => {
+                let clonedBoxes = cloneAndremoveHighlight(state.boxes);
+                let isAcross = this.trySetIsAcrossAndHighlight(
+                    clonedBoxes, state.clues, !state.isAcross, state.cursor);
+                return {isAcross: isAcross, boxes:clonedBoxes}})
+            }}
             onChange={e => this.onInputBoxChange()} 
             style={this.getHiddenBoxStyle()}/>
             <div className="blackSquare"></div>
