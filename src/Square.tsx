@@ -7,41 +7,17 @@ export type BoxProps = {
     id: string
     letter: string
     clueNumber: string
-    fillable: boolean
+    fillType: SquareType
 }
 
-type State = {
-    fillable: boolean
+export enum SquareType {
+    BLACK = "blackSquare",
+    WHITE = "whiteSquare",
+    ACTIVE = "highlightSquare",
 }
 
 export const boxSize = 40;
 
-export function getStyle(fillable: boolean): CSSProperties {
-    return {
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        fill: fillable ? "white" : "black",
-        stroke: 'rgb(55,55,55)',
-        strokeWidth: 1,
-    };
-}
-
-const clueStyle = {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    fill: 'black',
-    fontSize: '10px',
-};
-
-const textStyle = {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    fill: 'black',
-    fontSize: '20px'
-};
 const groupStyle = {
     pointerEvents: 'bounding-box'
 };
@@ -50,12 +26,6 @@ export class Square extends Component<BoxProps, {}> {
         super(props);
         console.log("Construct <" + this.props.letter + ">");
     }
-
-    // public onClick() {
-    //     this.setState((state) => {
-    //         return { fillable: !state.fillable };
-    //     });
-    // }
 
     public render() {
         let svgElements = [];
@@ -66,15 +36,15 @@ export class Square extends Component<BoxProps, {}> {
                 y={this.props.y * boxSize}
                 width={boxSize}
                 height={boxSize}
-                style={getStyle(this.props.fillable)}>
+                className={this.props.fillType}>
             </rect>);
-        if (this.props.fillable) {
+        if (this.props.fillType) {
             svgElements.push(
                 <text
                     key={"letter" + this.props.id}
                     x={(this.props.x + 0.35) * boxSize}
                     y={(this.props.y + 0.65) * boxSize}
-                    style={textStyle}>{this.props.letter}
+                    className="clueText">{this.props.letter}
                 </text>);
             if (this.props.clueNumber != "") {
                 svgElements.push(
@@ -82,7 +52,7 @@ export class Square extends Component<BoxProps, {}> {
                         key={"clue" + this.props.id}
                         x={this.props.x * boxSize + 2}
                         y={this.props.y * boxSize + 10}
-                        style={clueStyle}>{this.props.clueNumber}
+                        className="clueNumber">{this.props.clueNumber}
                     </text>);
             }
         }

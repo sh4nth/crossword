@@ -1,4 +1,4 @@
-import {BoxProps} from "./Square";
+import {BoxProps, SquareType} from "./Square";
 import {Point} from "./Crossword";
 import {cloneDeep} from "lodash";
 
@@ -23,7 +23,7 @@ export function numberClues(boxes: Array<Array<BoxProps>>): Array<Clue> {
             currentClue = null;
             return;
         }
-        if(boxes[i][j].fillable) {
+        if(boxes[i][j].fillType != SquareType.BLACK) {
             if (currentClue == null) {
                 currentClue = {start:{x:j, y:i}, isAcross: isAcross, length: 1, clueNumber: 0};
             } else {

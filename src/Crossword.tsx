@@ -1,5 +1,5 @@
 import React, { Component, KeyboardEvent, MouseEvent, createRef, CSSProperties } from 'react';
-import { Square, boxSize, BoxProps } from "./Square";
+import { Square, boxSize, BoxProps, SquareType } from "./Square";
 import {cloneDeep, floor, min} from 'lodash';
 import Switch from '@material-ui/core/Switch';
 import {numberClues} from './Utils';
@@ -22,7 +22,11 @@ type State = {
 };
 
 function shouldBeBlack(i:number, j:number) {
-    return !(i%2 == 1 && j%2 == 1)
+    if (i%2 == 1 && j%2 == 1) {
+        return SquareType.BLACK;
+    } else {
+        return SquareType.WHITE;
+    }
 }
 
 const N = 5;
@@ -45,7 +49,11 @@ export class Crossword extends Component<{}, State> {
         this.setState(state => {
             let clonedBoxes = cloneDeep(state.boxes);
             if (state.mode == Mode.GRID) {
-                clonedBoxes[y][x].fillable = !clonedBoxes[y][x].fillable;
+                if (clonedBoxes[y][x].fillType == SquareType.BLACK) {
+                    clonedBoxes[y][x].fillType = SquareType.WHITE;
+                } else {
+                    clonedBoxes[y][x].fillType = SquareType.BLACK;
+                }
                 numberClues(clonedBoxes);
             }
             return {boxes:clonedBoxes, cursor:{x: x, y: y}};
@@ -86,7 +94,7 @@ export class Crossword extends Component<{}, State> {
     onInputBoxChange() {
         let x = this.state.cursor.x;
         let y = this.state.cursor.y;
-        if (x < 0 || y < 0 || !this.state.boxes[y][x].fillable || !this.nameInput) {
+        if (x < 0 || y < 0 || this.state.boxes[y][x].fillType == SquareType.BLACK || !this.nameInput) {
             console.log("Ignoring changeEvent");
             return;
         }
@@ -110,7 +118,13 @@ export class Crossword extends Component<{}, State> {
         for (var i = 0; i < N; i++) {
             let row = []
             for (var j = 0; j < N; j++) {
-                row.push({id: i + "-" + j, fillable: shouldBeBlack(i,j), letter: "", y: i, x: j, clueNumber:""});
+                row.push({
+                    id: i + "-" + j,
+                    fillType: shouldBeBlack(i,j),
+                    letter: "",
+                    y: i,
+                    x: j,
+                    clueNumber:""});
             }
             boxes.push(row);
             numberClues(boxes);
@@ -152,7 +166,7 @@ export class Crossword extends Component<{}, State> {
                     row.map((b) => {
                     return <Square 
                         key={b.id}
-                        fillable={b.fillable}
+                        fillType={b.fillType}
                         y={b.y}
                         x={b.x} 
                         id={b.id}
