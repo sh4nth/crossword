@@ -16,9 +16,7 @@ function updateConstraintsAndCheckIsValid(clues: Array<Clue>) {
             let d_intersect = 
                 down.state.constraints.charAt(across.start.y - down.start.y);
             if (!across.state.isFilled) {
-                console.log(across.state.constraints + ":" + d_intersect);
                 across.setConstraint(down.start.x - across.start.x, d_intersect);
-                console.log(across.state.constraints + ":" + d_intersect);
             }
             if (!down.state.isFilled) {
                 down.setConstraint(across.start.y - down.start.y,  a_intersect);
@@ -34,7 +32,6 @@ function updateConstraintsAndCheckIsValid(clues: Array<Clue>) {
 
 function initForBackTracking(clues: Array<Clue>) {
     console.log("InBacktr");
-    console.log(clues);
     for(let i=0; i<clues.length; i++) {
         clues[i].state.constraints = Array(clues[i].length + 1).join(" ");
         clues[i].state.isBacktracking = true;
@@ -69,8 +66,6 @@ function fill(clues : Array<Clue>, words:Set<string>): Array<Clue> | null {
 
 
     if (unsolved.length == 0) {
-        console.log("Yay!");
-        console.log(clues);
         return clues;
     }
     
@@ -107,7 +102,7 @@ function fill(clues : Array<Clue>, words:Set<string>): Array<Clue> | null {
 type Guess = {
     index: number,
     word: string,
-}
+} | null;
 
 // TODO: Fix this to load from a dictionary
 let words = [
@@ -123,7 +118,7 @@ let words = [
     "AB",
 ];
 
-function find(clue:Clue, usedWords:Set<string>, start:number) {
+function find(clue:Clue, usedWords:Set<string>, start:number) : Guess {
     for(let i=start; i < words.length; i++) {
         if (usedWords.has(words[i]) || words[i].length != clue.length) {
             continue;

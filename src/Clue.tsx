@@ -80,8 +80,6 @@ export class Clue {
         let oldConstraint = this.state.constraints;
         let oldN = oldConstraint.length;
         this.state.constraints = oldConstraint.substr(0,i) + char + oldConstraint.substr(i+1);
-        console.log(this.start.x + "," + this.start.y + "(" + this.length + ")" 
-        + (this.isAcross? "A" : "D") + "\n" + oldN + " -> " + this.state.constraints.length);
     }
 }
 
@@ -131,20 +129,18 @@ export function numberClues(boxes: Array<Array<BoxProps>>): Array<Clue> {
         }
     }
     let singleLengthClues = clues
-        .filter(clue => clue.length == 1)
-
-    let setOfSingleLengthClueStarts = new Set();
-
-    singleLengthClues.forEach(start => {
-        if (setOfSingleLengthClueStarts.has(start)) {
-            console.log("Duplicate");
-            return [];
-        }
-        setOfSingleLengthClueStarts.add(start);
-    });
+        .filter(clue => clue.length == 1);
+    
+    boxes.forEach(row => row.forEach(b => {
+        // Boxes which are isolated in both directions should be blacked
+        if (singleLengthClues.filter(c=> c.start.x == b.coords.x && c.start.y == b.coords.y).length == 2) {
+            b.fillType = SquareType.BLACK;
+        }}));
 
     let actualClues = clues.filter(clue => clue.length > 1)
         .sort((c1,c2) => c1.start.x + N*c1.start.y - c2.start.x - c2.start.y*N);
+    
+    // Number the clues
     let clueNumber = 0;
     for (let i=0; i<actualClues.length; i++) {
         let clue = actualClues[i];

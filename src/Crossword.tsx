@@ -80,22 +80,18 @@ export class Crossword extends Component<CrosswordProps, State> {
             }
             return {boxes:clonedBoxes, cursor:point, clues: clues, isAcross: isAcross};
         });
-        console.log(x + "," + y);
-        // console.log(event.clientX + ", " + event.clientY);
         if (this.nameInput) {
             this.nameInput.focus();
         }
     }
 
+    // Caller must set state using the new clonedBoxes
     trySetIsAcrossAndHighlight(clonedBoxes:Array<Array<BoxProps>>, clues: Array<Clue>, isAcross: boolean, point: Point) {
         let possibleClues = clues.filter(c => c.contains(point));
-                console.log(possibleClues);
                 if (possibleClues.length > 2) {
                     throw new Error("Should not be possible");
                 } else if (possibleClues.length == 2) {
-                    console.log("Trying for 2" + isAcross);
                     let clue = possibleClues.filter(c => c.isAcross == isAcross)[0];
-                    console.log(clue);
                     clue.getPoints().forEach(
                             p => {clonedBoxes[p.y][p.x].fillType = SquareType.ACTIVE;});
                 } else if (possibleClues.length == 1) {
@@ -212,7 +208,7 @@ export class Crossword extends Component<CrosswordProps, State> {
     }
 
     render() {
-        console.log("Render Cross" + this.state.boxes[0][0].letter);
+        console.log("Render Crossword");
         return (
         <div ref={div => {this.div = div;}} className="Crossword" style={containerStyle()} tabIndex={0}>
             <svg 
@@ -264,10 +260,8 @@ export class Crossword extends Component<CrosswordProps, State> {
                             continue;
                         }
                         if(clue.isAcross) {
-                            console.log(clue.clueNumber + "A " + (clue.start.x + i) + "," + clue.start.y + ":" +  clue.state.constraints.charAt(i) )
                             clonedBoxes[clue.start.y][clue.start.x + i].letter = clue.state.constraints.charAt(i);
                         } else {
-                            console.log(clue.clueNumber + "D " + (clue.start.x) + "," + (clue.start.y + i) + ":" +  clue.state.constraints.charAt(i) )
                             clonedBoxes[clue.start.y + i][clue.start.x].letter = clue.state.constraints.charAt(i);
                         }
                     }
