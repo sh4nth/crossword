@@ -230,42 +230,8 @@ export class Crossword extends Component<CrosswordProps, State> {
                 ))}
             </svg>
             <div style={this.hideIfNotEditable()}>
-                Edit Grid<Switch value="Edit" onChange={e => this.onToggleChange(e)}/>
-                <Button onClick={
-                    e => {
-                        let clues = solve(this.state.clues);
-                        if(clues != null) {
-                            let nonNullClues = clues
-                            let clonedBoxes = cloneAndremoveHighlight(this.state.boxes);
-                            for(let i=0; i<N; i++) {
-                                for(let j=0; j<N; j++) {
-                                    clonedBoxes[i][j].letter = "";
-                                }
-                            }
-                            clues.forEach(
-                                clue => {
-                                    for (let i=0; i<clue.length; i++) {
-                                        if(!clue.state.isFilled) {
-                                            continue;
-                                        }
-                                        if(clue.isAcross) {
-                                            console.log(clue.clueNumber + "A " + (clue.start.x + i) + "," + clue.start.y + ":" +  clue.state.constraints.charAt(i) )
-                                            clonedBoxes[clue.start.y][clue.start.x + i].letter = clue.state.constraints.charAt(i);
-                                        } else {
-                                            console.log(clue.clueNumber + "D " + (clue.start.x) + "," + (clue.start.y + i) + ":" +  clue.state.constraints.charAt(i) )
-                                            clonedBoxes[clue.start.y + i][clue.start.x].letter = clue.state.constraints.charAt(i);
-                                        }
-                                    }
-                                }
-                            )
-                            this.setState(state => {
-                                return {boxes: clonedBoxes, clues: nonNullClues}
-                            });
-                        } else {
-                            console.log("No solution!");
-                        }
-                    }
-                }>Fill</Button>
+                Edit Grid<Switch value="Edit" onChange={this.onToggleChange}/>
+                <Button onClick={this.onFillButtonClick}>Fill</Button>
             </div>
             <input value="" ref={input => {this.nameInput = input;}} 
             maxLength={1} 
@@ -279,6 +245,40 @@ export class Crossword extends Component<CrosswordProps, State> {
             style={this.getHiddenBoxStyle()}/>
             <div className="blackSquare"></div>
         </div>);
+    }
+
+    onFillButtonClick(ignored: any) {
+        let clues = solve(this.state.clues);
+        if(clues != null) {
+            let nonNullClues = clues
+            let clonedBoxes = cloneAndremoveHighlight(this.state.boxes);
+            for(let i=0; i<N; i++) {
+                for(let j=0; j<N; j++) {
+                    clonedBoxes[i][j].letter = "";
+                }
+            }
+            clues.forEach(
+                clue => {
+                    for (let i=0; i<clue.length; i++) {
+                        if(!clue.state.isFilled) {
+                            continue;
+                        }
+                        if(clue.isAcross) {
+                            console.log(clue.clueNumber + "A " + (clue.start.x + i) + "," + clue.start.y + ":" +  clue.state.constraints.charAt(i) )
+                            clonedBoxes[clue.start.y][clue.start.x + i].letter = clue.state.constraints.charAt(i);
+                        } else {
+                            console.log(clue.clueNumber + "D " + (clue.start.x) + "," + (clue.start.y + i) + ":" +  clue.state.constraints.charAt(i) )
+                            clonedBoxes[clue.start.y + i][clue.start.x].letter = clue.state.constraints.charAt(i);
+                        }
+                    }
+                }
+            )
+            this.setState(state => {
+                return {boxes: clonedBoxes, clues: nonNullClues}
+            });
+        } else {
+            console.log("No solution!");
+        }
     }
 }
 
