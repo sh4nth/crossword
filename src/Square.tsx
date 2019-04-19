@@ -37,13 +37,15 @@ export class Square extends Component<BoxProps, {}> {
                 className={this.props.fillType}>
             </rect>);
         if (this.props.fillType) {
-            svgElements.push(
-                <text
-                    key={this.pointToIdString("text")}
-                    x={(this.props.coords.x + 0.35) * boxSize}
-                    y={(this.props.coords.y + 0.65) * boxSize}
-                    className="clueText">{this.props.letter}
-                </text>);
+            if (this.props.letter != ".") {
+                svgElements.push(
+                    <text
+                        key={this.pointToIdString("text")}
+                        x={(this.props.coords.x + 0.35) * boxSize}
+                        y={(this.props.coords.y + 0.65) * boxSize}
+                        className="clueText">{this.props.letter}
+                    </text>);
+            }
             if (this.props.clueNumber != "") {
                 svgElements.push(
                     <text

@@ -38,14 +38,21 @@ type CrosswordProps = {
     editable: boolean,
 }
 
-function cloneAndremoveHighlight(boxes: Array<Array<BoxProps>>) {
+function cloneBoxes(boxes: Array<Array<BoxProps>>, removeHighlight: boolean, clear:boolean) {
     let clonedBoxes = cloneDeep(boxes);
     clonedBoxes.forEach(row => row.forEach(box => {
-        if(box.fillType == SquareType.ACTIVE) {
+        if(removeHighlight && box.fillType == SquareType.ACTIVE) {
             box.fillType = SquareType.WHITE;
+        }
+        if(clear) {
+            box.letter = ".";
         }
     }));
     return clonedBoxes;
+}
+
+function cloneAndremoveHighlight(boxes: Array<Array<BoxProps>>) {
+    return cloneBoxes(boxes, true, false);
 }
 
 export class Crossword extends Component<CrosswordProps, State> {
@@ -223,6 +230,10 @@ export class Crossword extends Component<CrosswordProps, State> {
             <div style={this.hideIfNotEditable()}>
                 Edit Grid<Switch value="Edit" onChange={e => this.onToggleChange(e)}/>
                 <Button onClick={e => this.onFillButtonClick(e)}>Fill</Button>
+                <Button onClick={e => this.setState(state => {
+                    let clonedBoxes = cloneBoxes(state.boxes, true, true);
+                    return {boxes: clonedBoxes, clues: numberClues(clonedBoxes)}
+                })}>Clear</Button>
                 <br/>
                 <textarea className="extraWords" ref={t => {this.specialWords = t;}} />
             </div>

@@ -58,15 +58,30 @@ function initForBackTracking(clues: Array<Clue>) {
     }
 }
 
+let totalTries = 0;
+let MAX_TRIES = 300;
+
 export function solve(clues : Array<Clue>, additionalWords: Array<string>) {
-    initForBackTracking(clues);
+    totalTries = 0;
+    // initForBackTracking(clues);
+    updateConstraintsAndCheckIsValid(clues);
     for (let i=2; i<=15; i++) {
         wordsByLength[i] = additionalWords.filter(w => w.length == i).concat(dictsByLength[i]);
     }
-    return fill(clues, new Set(), 0);
+    let usedWords = new Set();
+    clues.filter(c => c.state.isFilled).map(c => c.state.constraints).forEach(w => usedWords.add(w));
+    console.log(usedWords);
+    return fill(clues, usedWords, 0);
 }
 
 function fill(clues : Array<Clue>, words:Set<string>, depth:number): Array<Clue> | null {
+    totalTries += 1;
+
+    if(totalTries > MAX_TRIES) {
+        updateConstraintsAndCheckIsValid(clues);
+        return clues;
+    }
+
     if (depth > 40) {
         throw new Error("Recursion depth");
     }
