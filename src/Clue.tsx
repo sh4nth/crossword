@@ -40,6 +40,10 @@ export class Clue {
         this.state.constraints += ".";
     }
 
+    public clearConstraints() {
+        this.state.constraints = Array(this.length+1).join('.');
+    }
+
     public getPoints() {
         let points = [];
         for(let i=0; i<this.length; i++) {

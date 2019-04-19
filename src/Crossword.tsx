@@ -3,7 +3,7 @@ import { Square, boxSize, BoxProps, SquareType } from "./Square";
 import {cloneDeep, floor} from 'lodash';
 import Switch from '@material-ui/core/Switch';
 import {numberClues, Clue} from './Clue';
-import { Button } from '@material-ui/core';
+import { Button, TextField } from '@material-ui/core';
 import { solve } from './Backtrack';
 
 export type Point = {
@@ -51,6 +51,7 @@ function cloneAndremoveHighlight(boxes: Array<Array<BoxProps>>) {
 export class Crossword extends Component<CrosswordProps, State> {
     nameInput: HTMLInputElement | null | undefined;
     div: HTMLDivElement | null | undefined;
+    specialWords: HTMLTextAreaElement | null |  undefined;
 
     public onClick(event: MouseEvent) {
         let x = floor(N * event.clientX / event.currentTarget.clientWidth);
@@ -220,6 +221,7 @@ export class Crossword extends Component<CrosswordProps, State> {
             <div style={this.hideIfNotEditable()}>
                 Edit Grid<Switch value="Edit" onChange={e => this.onToggleChange(e)}/>
                 <Button onClick={e => this.onFillButtonClick(e)}>Fill</Button>
+                <textarea ref={t => {this.specialWords = t;}} />
             </div>
             <input value="" ref={input => {this.nameInput = input;}} 
             maxLength={1} 
@@ -251,7 +253,11 @@ export class Crossword extends Component<CrosswordProps, State> {
     }
 
     onFillButtonClick(ignored: any) {
-        let clues = solve(this.state.clues);
+        let additionalWords : Array<string> = [];
+        if (this.specialWords) {
+            new Set(this.specialWords.value.toUpperCase().split(/[^A-Z]/)).forEach(s => additionalWords.push(s));
+        }
+        let clues = solve(this.state.clues, additionalWords);
         if(clues != null) {
             let nonNullClues = clues
             let clonedBoxes = cloneAndremoveHighlight(this.state.boxes);

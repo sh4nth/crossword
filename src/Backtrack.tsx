@@ -1,8 +1,12 @@
 import { Clue } from "./Clue";
+import { words5 } from "./words-5";
 
 function updateConstraintsAndCheckIsValid(clues: Array<Clue>) {
     for(let i=0; i<clues.length; i++) {
         let clue = clues[i];
+        if (!clue.state.isFilled) {
+            clue.clearConstraints();
+        }
         for(let j=0; j<clue.state.intersectingClues.length; j++) {
             let clue2 = clue.state.intersectingClues[j];
             if(!clue.state.isFilled && !clue2.state.isFilled) {
@@ -33,7 +37,7 @@ function updateConstraintsAndCheckIsValid(clues: Array<Clue>) {
 function initForBackTracking(clues: Array<Clue>) {
     console.log("InBacktr");
     for(let i=0; i<clues.length; i++) {
-        clues[i].state.constraints = Array(clues[i].length + 1).join(" ");
+        clues[i].clearConstraints();
         clues[i].state.isBacktracking = true;
         clues[i].state.isFilled = false;
         clues[i].state.intersectingClues = [];
@@ -54,8 +58,11 @@ function initForBackTracking(clues: Array<Clue>) {
     }
 }
 
-export function solve(clues : Array<Clue>) {
+export function solve(clues : Array<Clue>, additionalWords: Array<string>) {
     initForBackTracking(clues);
+    for (let i=2; i< 15; i++) {
+        wordsByLength[i] = additionalWords.filter(w => w.length == i).concat(dictsByLength[i]);
+    }
     return fill(clues, new Set());
 }
 
@@ -86,6 +93,7 @@ function fill(clues : Array<Clue>, words:Set<string>): Array<Clue> | null {
             words.add(guess.word);
             clue.state.constraints = guess.word;
             clue.state.isFilled = true;
+            updateConstraintsAndCheckIsValid(clues);
             let rec = fill(clues, words);
             if (rec != null) {
                 return rec;
@@ -104,21 +112,18 @@ type Guess = {
     word: string,
 } | null;
 
-// TODO: Fix this to load from a dictionary
-let words = [
-    "AAAAA", 
-    "ABBBB", 
-    "ACCCC", 
-    "ADDDD", 
-    "BXCXD", 
-    "BYCYD",
+let wordsByLength : Array<Array<string>> = Array(16);
+let dictsByLength : Array<Array<string>> = Array(16);
+dictsByLength[2] = [
     "BX",
     "XD",
     "BB",
     "AB",
 ];
+dictsByLength[5] = words5;
 
 function find(clue:Clue, usedWords:Set<string>, start:number) : Guess {
+    let words = wordsByLength[clue.length];
     for(let i=start; i < words.length; i++) {
         if (usedWords.has(words[i]) || words[i].length != clue.length) {
             continue;
@@ -131,10 +136,5 @@ function find(clue:Clue, usedWords:Set<string>, start:number) : Guess {
 }
 
 function matches(constr: string, word:string) {
-    for (let i=0; i<constr.length; i++) {
-        if (constr.charAt(i) != " " && constr.charAt(i) != word.charAt(i)) {
-            return false;
-        }
-    }
-    return true;
+    return word.search(constr) != -1;
 }
