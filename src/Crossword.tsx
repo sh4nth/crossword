@@ -221,7 +221,8 @@ export class Crossword extends Component<CrosswordProps, State> {
             <div style={this.hideIfNotEditable()}>
                 Edit Grid<Switch value="Edit" onChange={e => this.onToggleChange(e)}/>
                 <Button onClick={e => this.onFillButtonClick(e)}>Fill</Button>
-                <textarea ref={t => {this.specialWords = t;}} />
+                <br/>
+                <textarea className="extraWords" ref={t => {this.specialWords = t;}} />
             </div>
             <input value="" ref={input => {this.nameInput = input;}} 
             maxLength={1} 
