@@ -3,6 +3,8 @@ import { Square, boxSize, BoxProps, SquareType } from "./Square";
 import {cloneDeep, floor} from 'lodash';
 import Switch from '@material-ui/core/Switch';
 import {numberClues, Clue} from './Clue';
+import { Button } from '@material-ui/core';
+import { solve } from './Backtrack';
 
 export type Point = {
     x: number,
@@ -227,7 +229,41 @@ export class Crossword extends Component<CrosswordProps, State> {
                     })
                 ))}
             </svg>
-            <div style={this.hideIfNotEditable()} >Edit Grid<Switch value="Edit" onChange={e => this.onToggleChange(e)}/></div>
+            <div style={this.hideIfNotEditable()}>
+                Edit Grid<Switch value="Edit" onChange={e => this.onToggleChange(e)}/>
+                <Button onClick={
+                    e => {
+                        this.setState(state => {
+                            let clonedBoxes = cloneAndremoveHighlight(state.boxes);
+                            for(let i=0; i<N; i++) {
+                                for(let j=0; j<N; j++) {
+                                    clonedBoxes[i][j].letter = "";
+                                }
+                            }
+                            return {boxes:clonedBoxes};
+                        })
+                        let clues = solve(this.state.clues);
+                        if(clues != null) {
+                            let nonNullClues = clues
+                            let boxes = cloneAndremoveHighlight(this.state.boxes);
+                            clues.forEach(
+                                clue => {
+                                    for (let i=0; i<clue.length; i++) {
+                                        if(clue.isAcross) {
+                                            boxes[clue.start.x + i][clue.start.y].letter = clue.state.constraints.charAt(i);
+                                        } else {
+                                            boxes[clue.start.x][clue.start.y + i].letter = clue.state.constraints.charAt(i);
+                                        }
+                                    }
+                                }
+                            )
+                            this.setState(state => {
+                                return {boxes: boxes, clues: nonNullClues}
+                            });
+                        }
+                    }
+                }>Fill</Button>
+            </div>
             <input value="" ref={input => {this.nameInput = input;}} 
             maxLength={1} 
             onClick={e => {this.setState(state => {

@@ -9,8 +9,9 @@ type ClueType = {
 }
 
 type BacktrackingClueState = {
+    isBacktracking: boolean,
     isFilled: boolean,
-    constraints: Array<string|null>,
+    constraints: string,
     intersectingClues: Array<Clue>,
 }
 
@@ -19,14 +20,19 @@ export class Clue {
     start: Point;
     length: number;
     isAcross: boolean;
-    state: BacktrackingClueState | null;
+    state: BacktrackingClueState;
 
     constructor(props: ClueType) {
         this.clueNumber = props.clueNumber;
         this.start = props.start;
         this.length = props.length;
         this.isAcross = props.isAcross;
-        this.state = null;
+        let constraints = Array(props.length + 1).join(" ");
+        this.state = {
+            isBacktracking: false,
+            isFilled: false,
+            constraints:constraints,
+            intersectingClues:[]};
     }
 
     public getPoints() {
@@ -47,6 +53,35 @@ export class Clue {
         } else {
             return (point.x == this.start.x) && (this.start.y <= point.y) && (point.y < this.start.y + this.length);
         }
+    }
+
+    public intersects(other: Clue) {
+        if (other.isAcross == this.isAcross) {
+            return null;
+        }
+        let across = other.isAcross ? other : this;
+        let down = other.isAcross ? this : other;
+
+        let point = {x: down.start.x, y: across.start.y}
+        if (across.contains(point) && down.contains(point)) {
+            return point;
+        }
+        return null;
+    }
+
+    public setConstraint(i:number, char:string) {
+        if(char.length != 1 || i >= this.state.constraints.length) {
+            throw new Error(
+                "chr length must be 1 and " + i + " < " + this.state.constraints.length
+                + " -- " + this.start.x + "," + this.start.y + "(" + this.length + ")" 
+                + (this.isAcross? "A" : "D")); 
+        }
+
+        let oldConstraint = this.state.constraints;
+        let oldN = oldConstraint.length;
+        this.state.constraints = oldConstraint.substr(0,i) + char + oldConstraint.substr(i+1);
+        console.log(this.start.x + "," + this.start.y + "(" + this.length + ")" 
+        + (this.isAcross? "A" : "D") + "\n" + oldN + " -> " + this.state.constraints.length);
     }
 }
 
@@ -111,11 +146,8 @@ export function numberClues(boxes: Array<Array<BoxProps>>): Array<Clue> {
     let actualClues = clues.filter(clue => clue.length > 1)
         .sort((c1,c2) => c1.start.x + N*c1.start.y - c2.start.x - c2.start.y*N);
     let clueNumber = 0;
-    console.log("-----------");
     for (let i=0; i<actualClues.length; i++) {
         let clue = actualClues[i];
-        console.log("Start");
-        console.log(clue);
         if (boxes[clue.start.y][clue.start.x].clueNumber == "") {
             clueNumber++;
             boxes[clue.start.y][clue.start.x].clueNumber = "" + clueNumber;
