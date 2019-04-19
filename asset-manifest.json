@@ -1,13 +1,13 @@
 {
-  "main.css": "/crossword/static/css/main.11ba2b6f.chunk.css",
-  "main.js": "/crossword/static/js/main.c71b3134.chunk.js",
-  "main.js.map": "/crossword/static/js/main.c71b3134.chunk.js.map",
+  "main.css": "/crossword/static/css/main.d076b0d0.chunk.css",
+  "main.js": "/crossword/static/js/main.54ed0cb7.chunk.js",
+  "main.js.map": "/crossword/static/js/main.54ed0cb7.chunk.js.map",
   "runtime~main.js": "/crossword/static/js/runtime~main.59db1c93.js",
   "runtime~main.js.map": "/crossword/static/js/runtime~main.59db1c93.js.map",
-  "static/js/2.7b18fb66.chunk.js": "/crossword/static/js/2.7b18fb66.chunk.js",
-  "static/js/2.7b18fb66.chunk.js.map": "/crossword/static/js/2.7b18fb66.chunk.js.map",
+  "static/js/2.de458613.chunk.js": "/crossword/static/js/2.de458613.chunk.js",
+  "static/js/2.de458613.chunk.js.map": "/crossword/static/js/2.de458613.chunk.js.map",
   "index.html": "/crossword/index.html",
-  "precache-manifest.fe59171190ba37aa83624bdc307c3ea5.js": "/crossword/precache-manifest.fe59171190ba37aa83624bdc307c3ea5.js",
+  "precache-manifest.9c232c66abfa2acc1e539e91317e2b02.js": "/crossword/precache-manifest.9c232c66abfa2acc1e539e91317e2b02.js",
   "service-worker.js": "/crossword/service-worker.js",
-  "static/css/main.11ba2b6f.chunk.css.map": "/crossword/static/css/main.11ba2b6f.chunk.css.map"
+  "static/css/main.d076b0d0.chunk.css.map": "/crossword/static/css/main.d076b0d0.chunk.css.map"
 }
