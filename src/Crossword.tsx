@@ -230,8 +230,8 @@ export class Crossword extends Component<CrosswordProps, State> {
                 ))}
             </svg>
             <div style={this.hideIfNotEditable()}>
-                Edit Grid<Switch value="Edit" onChange={this.onToggleChange}/>
-                <Button onClick={this.onFillButtonClick}>Fill</Button>
+                Edit Grid<Switch value="Edit" onChange={e => this.onToggleChange(e)}/>
+                <Button onClick={e => this.onFillButtonClick(e)}>Fill</Button>
             </div>
             <input value="" ref={input => {this.nameInput = input;}} 
             maxLength={1} 
