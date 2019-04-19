@@ -59,3 +59,15 @@
   fill: black;
   font-size: 10px;
 }
+
+.clueList {
+  list-style: none;
+  margin-left: 0;
+   padding-left: 1em;
+   text-indent: 0em;
+}
+
+.crossword {
+  height: 500px;
+  width: 500px;
+}

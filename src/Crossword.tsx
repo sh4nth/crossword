@@ -34,14 +34,6 @@ function shouldBeBlack(i:number, j:number) {
 
 const N = 5;
 
-function containerStyle() {
-    let size = window.innerWidth > window.innerHeight ? window.innerHeight : window.innerWidth;
-    return {
-        width: size,
-        height: size,
-    }
-}
-
 type CrosswordProps = {
     editable: boolean,
 }
@@ -210,7 +202,7 @@ export class Crossword extends Component<CrosswordProps, State> {
     render() {
         console.log("Render Crossword");
         return (
-        <div ref={div => {this.div = div;}} className="Crossword" style={containerStyle()} tabIndex={0}>
+        <div ref={div => {this.div = div;}} className="crossword" tabIndex={0}>
             <svg 
                 onClick={e => this.onClick(e)}
                 id="crossword-svg" viewBox={"0 0 " + N*boxSize + " " + N*boxSize} xmlns="http://www.w3.org/2000/svg">
@@ -239,7 +231,22 @@ export class Crossword extends Component<CrosswordProps, State> {
             }}
             onChange={e => this.onInputBoxChange()} 
             style={this.getHiddenBoxStyle()}/>
-            <div className="blackSquare"></div>
+            <div>
+                Across
+                <ul className="clueList">
+                    {this.state.clues.filter(c=> c.isAcross).map(c => {
+                        return <li key={c.clueNumber + " " + c.isAcross}>{c.clueNumber}. {c.state.constraints} ({c.length})</li>
+                    })}
+                </ul>
+            </div>
+            <div>
+                Down
+                <ul className="clueList">
+                    {this.state.clues.filter(c=> !c.isAcross).map(c => {
+                        return <li key={c.clueNumber + " " + c.isAcross}>{c.clueNumber}. {c.state.constraints} ({c.length})</li>
+                    })}
+                </ul>
+            </div>
         </div>);
     }
 

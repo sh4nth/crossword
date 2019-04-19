@@ -27,12 +27,17 @@ export class Clue {
         this.start = props.start;
         this.length = props.length;
         this.isAcross = props.isAcross;
-        let constraints = Array(props.length + 1).join(" ");
+        let constraints = Array(props.length + 1).join(".");
         this.state = {
             isBacktracking: false,
             isFilled: false,
             constraints:constraints,
             intersectingClues:[]};
+    }
+
+    lengthen() {
+        this.length++;
+        this.state.constraints += ".";
     }
 
     public getPoints() {
@@ -102,7 +107,7 @@ export function numberClues(boxes: Array<Array<BoxProps>>): Array<Clue> {
             if (currentClue == null) {
                 currentClue = new Clue({start:{x:j, y:i}, isAcross: isAcross, length: 1, clueNumber: 0});
             } else {
-                currentClue.length++;
+                currentClue.lengthen();
             }
         } else {
             if(currentClue != null) {
@@ -150,6 +155,5 @@ export function numberClues(boxes: Array<Array<BoxProps>>): Array<Clue> {
         }
         clue.clueNumber = clueNumber;
     }
-    console.log(actualClues);
     return actualClues;
 }
