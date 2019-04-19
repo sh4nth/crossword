@@ -67,6 +67,13 @@ function fill(clues : Array<Clue>, words:Set<string>): Array<Clue> | null {
     console.log("Solved " + n + " of " + clues.length);
     let unsolved = clues.filter(c => !c.state.isFilled);
 
+
+    if (unsolved.length == 0) {
+        console.log("Yay!");
+        console.log(clues);
+        return clues;
+    }
+    
     for (let i =0; i<unsolved.length; i++) {
         let clue = unsolved[i];
         let guess = find(clue, words, 0);
@@ -75,13 +82,8 @@ function fill(clues : Array<Clue>, words:Set<string>): Array<Clue> | null {
         }
     }
 
-    if (unsolved.length == 0) {
-        console.log("Yay!");
-        console.log(clues);
-        return clues;
-    }
 
-    for (let i =0; i<unsolved.length; i++) {
+    for (let i=0; i<unsolved.length; i++) {
         let clue = unsolved[i];
         let guess = find(clue, words, 0);
         while (guess != null) {
