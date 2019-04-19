@@ -60,13 +60,16 @@ function initForBackTracking(clues: Array<Clue>) {
 
 export function solve(clues : Array<Clue>, additionalWords: Array<string>) {
     initForBackTracking(clues);
-    for (let i=2; i< 15; i++) {
+    for (let i=2; i<=15; i++) {
         wordsByLength[i] = additionalWords.filter(w => w.length == i).concat(dictsByLength[i]);
     }
-    return fill(clues, new Set());
+    return fill(clues, new Set(), 0);
 }
 
-function fill(clues : Array<Clue>, words:Set<string>): Array<Clue> | null {
+function fill(clues : Array<Clue>, words:Set<string>, depth:number): Array<Clue> | null {
+    if (depth > 40) {
+        throw new Error("Recursion depth");
+    }
     let n = clues.filter(c => c.state.isFilled).length;
     console.log("Solved " + n + " of " + clues.length);
     let unsolved = clues.filter(c => !c.state.isFilled);
@@ -94,7 +97,7 @@ function fill(clues : Array<Clue>, words:Set<string>): Array<Clue> | null {
             clue.state.constraints = guess.word;
             clue.state.isFilled = true;
             updateConstraintsAndCheckIsValid(clues);
-            let rec = fill(clues, words);
+            let rec = fill(clues, words, depth + 1);
             if (rec != null) {
                 return rec;
             }
@@ -114,18 +117,24 @@ type Guess = {
 
 let wordsByLength : Array<Array<string>> = Array(16);
 let dictsByLength : Array<Array<string>> = Array(16);
+for (let i=0; i<=15; i++) {
+    dictsByLength[i] = [];
+}
+
 dictsByLength[2] = [
     "BX",
     "XD",
     "BB",
+    "AC",
+    "CC",
     "AB",
 ];
 dictsByLength[5] = words5;
 
 function find(clue:Clue, usedWords:Set<string>, start:number) : Guess {
     let words = wordsByLength[clue.length];
-    for(let i=start; i < words.length; i++) {
-        if (usedWords.has(words[i]) || words[i].length != clue.length) {
+    for(let i=start; i <words.length; i++) {
+        if (usedWords.has(words[i])) {
             continue;
         }
         if (matches(clue.state.constraints, words[i])) {

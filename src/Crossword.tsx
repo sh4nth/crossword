@@ -54,8 +54,10 @@ export class Crossword extends Component<CrosswordProps, State> {
     specialWords: HTMLTextAreaElement | null |  undefined;
 
     public onClick(event: MouseEvent) {
-        let x = floor(N * event.clientX / event.currentTarget.clientWidth);
-        let y = floor(N * event.clientY / event.currentTarget.clientHeight);
+        let rect = event.currentTarget.getBoundingClientRect();
+        let x = floor(N * (event.clientX - rect.left) / rect.width);
+        let y = floor(N * (event.clientY - rect.top) / rect.height);
+        console.log(x + ", " + y);
         let point = {x: x, y: y};
         this.setState(state => {
             let clues = state.clues;
@@ -178,8 +180,8 @@ export class Crossword extends Component<CrosswordProps, State> {
         }
         let size = this.div.clientWidth;
         return {
-            left: size * (this.state.cursor.x / N),
-            top: size * (this.state.cursor.y / N),
+            left: this.div.offsetLeft + size * (this.state.cursor.x / N),
+            top: this.div.offsetTop + size * (this.state.cursor.y / N),
             width: size / N,
             height: size/ N,
             position: "absolute",
