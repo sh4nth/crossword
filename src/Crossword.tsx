@@ -142,14 +142,19 @@ export class Crossword extends Component<CrosswordProps, State> {
 
         let pressedKey = this.nameInput.value;
         pressedKey = pressedKey.toUpperCase();
-        if (pressedKey > 'Z' || pressedKey < 'A') {
+        if (pressedKey == " " || pressedKey == "." || pressedKey == "") {
+            // Clear the box
+            pressedKey = ".";
+        } else if (pressedKey > 'Z' || pressedKey < 'A') {
             console.log("Ignoring key " + pressedKey);
             return;
         }
         this.setState(state => {
             let clonedBoxes = cloneDeep(state.boxes);
             clonedBoxes[state.cursor.y][state.cursor.x].letter = pressedKey;
-            return {boxes:clonedBoxes, cursor: this.getNextPoint(state.cursor)};
+            let clues = cloneDeep(this.state.clues);
+            clues.forEach(c => c.setConstraintsFromBoxes(clonedBoxes));
+            return {boxes:clonedBoxes, cursor: this.getNextPoint(state.cursor), clues:clues};
         });
     }
 
@@ -165,7 +170,7 @@ export class Crossword extends Component<CrosswordProps, State> {
             for (var j = 0; j < N; j++) {
                 row.push({
                     fillType: shouldBeBlack(i,j),
-                    letter: "",
+                    letter: ".",
                     coords: {y: i, x: j},
                     clueNumber:""});
             }

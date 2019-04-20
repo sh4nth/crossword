@@ -44,6 +44,18 @@ export class Clue {
         this.state.constraints = Array(this.length+1).join('.');
     }
 
+    public setConstraintsFromBoxes(boxes: Array<Array<BoxProps>>) {
+        let constraint = "";
+        for(let i=0; i<this.length; i++) {
+            if (this.isAcross) {
+                constraint += boxes[this.start.y][this.start.x + i].letter;
+            } else {
+                constraint += boxes[this.start.y + i][this.start.x].letter;
+            }
+        }
+        this.state.constraints = constraint;
+    }
+
     public getPoints() {
         let points = [];
         for(let i=0; i<this.length; i++) {
