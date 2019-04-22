@@ -32,7 +32,7 @@ function shouldBeBlack(i:number, j:number) {
     }
 }
 
-const N = 5;
+const N = 15;
 
 type CrosswordProps = {
     editable: boolean,

@@ -7,6 +7,12 @@ import { words6 } from "./words/w06";
 import { words7 } from "./words/w07";
 import { words8 } from "./words/w08";
 import { words9 } from "./words/w09";
+import { words10 } from "./words/w10";
+import { words11 } from "./words/w11";
+import { words12 } from "./words/w12";
+import { words13 } from "./words/w13";
+import { words14 } from "./words/w14";
+import { words15 } from "./words/w15";
 
 function updateConstraintsAndCheckIsValid(clues: Array<Clue>) {
     for(let i=0; i<clues.length; i++) {
@@ -138,6 +144,12 @@ dictsByLength[6] = words6;
 dictsByLength[7] = words7;
 dictsByLength[8] = words8;
 dictsByLength[9] = words9;
+dictsByLength[10] = words10;
+dictsByLength[11] = words11;
+dictsByLength[12] = words12;
+dictsByLength[13] = words13;
+dictsByLength[14] = words14;
+dictsByLength[15] = words15;
 
 function find(clue:Clue, usedWords:Set<string>, start:number) : Guess {
     let words = wordsByLength[clue.length];
