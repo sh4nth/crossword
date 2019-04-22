@@ -4,19 +4,19 @@ self.__precacheManifest = [
     "url": "/crossword/static/js/runtime~main.59db1c93.js"
   },
   {
-    "revision": "2f4558c21f16eea1a476",
-    "url": "/crossword/static/js/main.e878a708.chunk.js"
+    "revision": "be9dda4f53eda851b36a",
+    "url": "/crossword/static/js/main.7148c1b4.chunk.js"
   },
   {
     "revision": "985df1b8c27cf49573cb",
     "url": "/crossword/static/js/2.1fcc3aca.chunk.js"
   },
   {
-    "revision": "2f4558c21f16eea1a476",
+    "revision": "be9dda4f53eda851b36a",
     "url": "/crossword/static/css/main.e3fef9bb.chunk.css"
   },
   {
-    "revision": "9c7b8346e98819bfe728eca601938b0d",
+    "revision": "9003ff507e28ce8c9363e68202c7f1a8",
     "url": "/crossword/index.html"
   }
 ];
