@@ -1,5 +1,12 @@
 import { Clue } from "./Clue";
-import { words5 } from "./words-5";
+import { words2 } from "./words/w02";
+import { words3 } from "./words/w03";
+import { words4 } from "./words/w04";
+import { words5 } from "./words/w05";
+import { words6 } from "./words/w06";
+import { words7 } from "./words/w07";
+import { words8 } from "./words/w08";
+import { words9 } from "./words/w09";
 
 function updateConstraintsAndCheckIsValid(clues: Array<Clue>) {
     for(let i=0; i<clues.length; i++) {
@@ -42,20 +49,6 @@ function initForBackTracking(clues: Array<Clue>) {
         clues[i].state.isFilled = false;
         clues[i].state.intersectingClues = [];
     }
-
-    for(let i=0; i<clues.length; i++) {
-        for(let j=i+1; j<clues.length; j++) {
-            let c1 = clues[i];
-            let c2 = clues[j];
-            if (!c1.state || !c2.state) {
-                throw Error("Just set above");
-            }
-            if (c1.intersects(c2)) {
-                c1.state.intersectingClues.push(c2);
-                c2.state.intersectingClues.push(c1);
-            }
-        }
-    }
 }
 
 let totalTries = 0;
@@ -76,9 +69,9 @@ export function solve(clues : Array<Clue>, additionalWords: Array<string>) {
 
 function fill(clues : Array<Clue>, words:Set<string>, depth:number): Array<Clue> | null {
     totalTries += 1;
+    updateConstraintsAndCheckIsValid(clues);
 
     if(totalTries > MAX_TRIES) {
-        updateConstraintsAndCheckIsValid(clues);
         return clues;
     }
 
@@ -87,6 +80,7 @@ function fill(clues : Array<Clue>, words:Set<string>, depth:number): Array<Clue>
     }
     let n = clues.filter(c => c.state.isFilled).length;
     console.log("Solved " + n + " of " + clues.length);
+    console.log(clues.map(c=>c.state.constraints));
     let unsolved = clues.filter(c => !c.state.isFilled);
 
 
@@ -136,15 +130,14 @@ for (let i=0; i<=15; i++) {
     dictsByLength[i] = [];
 }
 
-dictsByLength[2] = [
-    "BX",
-    "XD",
-    "BB",
-    "AC",
-    "CC",
-    "AB",
-];
+dictsByLength[2] = words2;
+dictsByLength[3] = words3;
+dictsByLength[4] = words4;
 dictsByLength[5] = words5;
+dictsByLength[6] = words6;
+dictsByLength[7] = words7;
+dictsByLength[8] = words8;
+dictsByLength[9] = words9;
 
 function find(clue:Clue, usedWords:Set<string>, start:number) : Guess {
     let words = wordsByLength[clue.length];

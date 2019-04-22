@@ -84,6 +84,7 @@ export class Clue {
         let down = other.isAcross ? this : other;
 
         let point = {x: down.start.x, y: across.start.y}
+
         if (across.contains(point) && down.contains(point)) {
             return point;
         }
@@ -163,6 +164,7 @@ export function numberClues(boxes: Array<Array<BoxProps>>): Array<Clue> {
     
     // Number the clues
     let clueNumber = 0;
+
     for (let i=0; i<actualClues.length; i++) {
         let clue = actualClues[i];
         if (boxes[clue.start.y][clue.start.x].clueNumber == "") {
@@ -171,5 +173,21 @@ export function numberClues(boxes: Array<Array<BoxProps>>): Array<Clue> {
         }
         clue.clueNumber = clueNumber;
     }
+
+    //Set up intersections
+    for(let i=0; i<actualClues.length; i++) {
+        for(let j=i+1; j<actualClues.length; j++) {
+            let c1 = actualClues[i];
+            let c2 = actualClues[j];
+            if (!c1.state || !c2.state) {
+                throw Error("Just set above");
+            }
+            if (c1.intersects(c2)) {
+                c1.state.intersectingClues.push(c2);
+                c2.state.intersectingClues.push(c1);
+            }
+        }
+    }
+
     return actualClues;
 }
