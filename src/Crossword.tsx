@@ -126,10 +126,10 @@ export class Crossword extends Component<CrosswordProps, State> {
         }
     }
 
-    onToggleChange(e: React.ChangeEvent<HTMLInputElement>) {
-        let newMode = !e.currentTarget.checked ? Mode.SOLVE : Mode.GRID;
+    onToggleChange(e: any) {
+        let getNextMode = (mode:Mode) => {return mode == Mode.GRID? Mode.SOLVE : Mode.GRID};
         this.setState(state => {
-            return {mode: newMode, boxes: cloneAndremoveHighlight(state.boxes)}; });
+            return {mode: getNextMode(state.mode), boxes: cloneAndremoveHighlight(state.boxes)}; });
     }
 
     onInputBoxChange() {
@@ -233,7 +233,7 @@ export class Crossword extends Component<CrosswordProps, State> {
                 ))}
             </svg>
             <div style={this.hideIfNotEditable()}>
-                Edit Grid<Switch value="Edit" onChange={e => this.onToggleChange(e)}/>
+                <Button onClick={e => this.onToggleChange(e)}>{this.state.mode == Mode.SOLVE ? "Edit Grid" : "Solve"}</Button>
                 <Button onClick={e => this.onFillButtonClick(e)}>Fill</Button>
                 <Button onClick={e => this.setState(state => {
                     let clonedBoxes = cloneBoxes(state.boxes, true, true);
