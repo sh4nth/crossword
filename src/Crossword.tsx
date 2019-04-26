@@ -2,7 +2,9 @@ import React, { Component, MouseEvent, CSSProperties } from 'react';
 import { Square, boxSize, BoxProps, SquareType } from "./Square";
 import {cloneDeep, floor} from 'lodash';
 import Switch from '@material-ui/core/Switch';
-import {numberClues, Clue} from './Utils';
+import {numberClues, Clue} from './Clue';
+import { Button, TextField } from '@material-ui/core';
+import { solve } from './Backtrack';
 
 export type Point = {
     x: number,
@@ -30,37 +32,39 @@ function shouldBeBlack(i:number, j:number) {
     }
 }
 
-const N = 5;
-
-function containerStyle() {
-    let size = window.innerWidth > window.innerHeight ? window.innerHeight : window.innerWidth;
-    return {
-        width: size,
-        height: size,
-    }
-}
+const N = 15;
 
 type CrosswordProps = {
     editable: boolean,
 }
 
-function cloneAndremoveHighlight(boxes: Array<Array<BoxProps>>) {
+function cloneBoxes(boxes: Array<Array<BoxProps>>, removeHighlight: boolean, clear:boolean) {
     let clonedBoxes = cloneDeep(boxes);
     clonedBoxes.forEach(row => row.forEach(box => {
-        if(box.fillType == SquareType.ACTIVE) {
+        if(removeHighlight && box.fillType == SquareType.ACTIVE) {
             box.fillType = SquareType.WHITE;
+        }
+        if(clear) {
+            box.letter = ".";
         }
     }));
     return clonedBoxes;
 }
 
+function cloneAndremoveHighlight(boxes: Array<Array<BoxProps>>) {
+    return cloneBoxes(boxes, true, false);
+}
+
 export class Crossword extends Component<CrosswordProps, State> {
     nameInput: HTMLInputElement | null | undefined;
     div: HTMLDivElement | null | undefined;
+    specialWords: HTMLTextAreaElement | null |  undefined;
 
     public onClick(event: MouseEvent) {
-        let x = floor(N * event.clientX / event.currentTarget.clientWidth);
-        let y = floor(N * event.clientY / event.currentTarget.clientHeight);
+        let rect = event.currentTarget.getBoundingClientRect();
+        let x = floor(N * (event.clientX - rect.left) / rect.width);
+        let y = floor(N * (event.clientY - rect.top) / rect.height);
+        console.log(x + ", " + y);
         let point = {x: x, y: y};
         this.setState(state => {
             let clues = state.clues;
@@ -78,22 +82,18 @@ export class Crossword extends Component<CrosswordProps, State> {
             }
             return {boxes:clonedBoxes, cursor:point, clues: clues, isAcross: isAcross};
         });
-        console.log(x + "," + y);
-        // console.log(event.clientX + ", " + event.clientY);
         if (this.nameInput) {
             this.nameInput.focus();
         }
     }
 
+    // Caller must set state using the new clonedBoxes
     trySetIsAcrossAndHighlight(clonedBoxes:Array<Array<BoxProps>>, clues: Array<Clue>, isAcross: boolean, point: Point) {
         let possibleClues = clues.filter(c => c.contains(point));
-                console.log(possibleClues);
                 if (possibleClues.length > 2) {
                     throw new Error("Should not be possible");
                 } else if (possibleClues.length == 2) {
-                    console.log("Trying for 2" + isAcross);
                     let clue = possibleClues.filter(c => c.isAcross == isAcross)[0];
-                    console.log(clue);
                     clue.getPoints().forEach(
                             p => {clonedBoxes[p.y][p.x].fillType = SquareType.ACTIVE;});
                 } else if (possibleClues.length == 1) {
@@ -142,14 +142,19 @@ export class Crossword extends Component<CrosswordProps, State> {
 
         let pressedKey = this.nameInput.value;
         pressedKey = pressedKey.toUpperCase();
-        if (pressedKey > 'Z' || pressedKey < 'A') {
+        if (pressedKey == " " || pressedKey == "." || pressedKey == "") {
+            // Clear the box
+            pressedKey = ".";
+        } else if (pressedKey > 'Z' || pressedKey < 'A') {
             console.log("Ignoring key " + pressedKey);
             return;
         }
         this.setState(state => {
             let clonedBoxes = cloneDeep(state.boxes);
             clonedBoxes[state.cursor.y][state.cursor.x].letter = pressedKey;
-            return {boxes:clonedBoxes, cursor: this.getNextPoint(state.cursor)};
+            let clues = cloneDeep(this.state.clues);
+            clues.forEach(c => c.setConstraintsFromBoxes(clonedBoxes));
+            return {boxes:clonedBoxes, cursor: this.getNextPoint(state.cursor), clues:clues};
         });
     }
 
@@ -165,7 +170,7 @@ export class Crossword extends Component<CrosswordProps, State> {
             for (var j = 0; j < N; j++) {
                 row.push({
                     fillType: shouldBeBlack(i,j),
-                    letter: "",
+                    letter: ".",
                     coords: {y: i, x: j},
                     clueNumber:""});
             }
@@ -187,8 +192,8 @@ export class Crossword extends Component<CrosswordProps, State> {
         }
         let size = this.div.clientWidth;
         return {
-            left: size * (this.state.cursor.x / N),
-            top: size * (this.state.cursor.y / N),
+            left: this.div.offsetLeft + size * (this.state.cursor.x / N),
+            top: this.div.offsetTop + size * (this.state.cursor.y / N),
             width: size / N,
             height: size/ N,
             position: "absolute",
@@ -210,9 +215,9 @@ export class Crossword extends Component<CrosswordProps, State> {
     }
 
     render() {
-        console.log("Render Cross" + this.state.boxes[0][0].letter);
+        console.log("Render Crossword");
         return (
-        <div ref={div => {this.div = div;}} className="Crossword" style={containerStyle()} tabIndex={0}>
+        <div ref={div => {this.div = div;}} className="crossword" tabIndex={0}>
             <svg 
                 onClick={e => this.onClick(e)}
                 id="crossword-svg" viewBox={"0 0 " + N*boxSize + " " + N*boxSize} xmlns="http://www.w3.org/2000/svg">
@@ -227,7 +232,16 @@ export class Crossword extends Component<CrosswordProps, State> {
                     })
                 ))}
             </svg>
-            <div style={this.hideIfNotEditable()} >Edit Grid<Switch value="Edit" onChange={e => this.onToggleChange(e)}/></div>
+            <div style={this.hideIfNotEditable()}>
+                Edit Grid<Switch value="Edit" onChange={e => this.onToggleChange(e)}/>
+                <Button onClick={e => this.onFillButtonClick(e)}>Fill</Button>
+                <Button onClick={e => this.setState(state => {
+                    let clonedBoxes = cloneBoxes(state.boxes, true, true);
+                    return {boxes: clonedBoxes, clues: numberClues(clonedBoxes)}
+                })}>Clear</Button>
+                <br/>
+                <textarea className="extraWords" ref={t => {this.specialWords = t;}} />
+            </div>
             <input value="" ref={input => {this.nameInput = input;}} 
             maxLength={1} 
             onClick={e => {this.setState(state => {
@@ -238,8 +252,59 @@ export class Crossword extends Component<CrosswordProps, State> {
             }}
             onChange={e => this.onInputBoxChange()} 
             style={this.getHiddenBoxStyle()}/>
-            <div className="blackSquare"></div>
+            <div>
+                Across
+                <ul className="clueList">
+                    {this.state.clues.filter(c=> c.isAcross).map(c => {
+                        return <li key={c.clueNumber + " " + c.isAcross}>{c.clueNumber}. {c.state.constraints} ({c.length})</li>
+                    })}
+                </ul>
+            </div>
+            <div>
+                Down
+                <ul className="clueList">
+                    {this.state.clues.filter(c=> !c.isAcross).map(c => {
+                        return <li key={c.clueNumber + " " + c.isAcross}>{c.clueNumber}. {c.state.constraints} ({c.length})</li>
+                    })}
+                </ul>
+            </div>
         </div>);
+    }
+
+    onFillButtonClick(ignored: any) {
+        let additionalWords : Array<string> = [];
+        if (this.specialWords) {
+            new Set(this.specialWords.value.toUpperCase().split(/[^A-Z]/)).forEach(s => additionalWords.push(s));
+        }
+        let clues = solve(this.state.clues, additionalWords);
+        if(clues != null) {
+            let nonNullClues = clues
+            let clonedBoxes = cloneAndremoveHighlight(this.state.boxes);
+            for(let i=0; i<N; i++) {
+                for(let j=0; j<N; j++) {
+                    clonedBoxes[i][j].letter = "";
+                }
+            }
+            clues.forEach(
+                clue => {
+                    for (let i=0; i<clue.length; i++) {
+                        if(!clue.state.isFilled) {
+                            continue;
+                        }
+                        if(clue.isAcross) {
+                            clonedBoxes[clue.start.y][clue.start.x + i].letter = clue.state.constraints.charAt(i);
+                        } else {
+                            clonedBoxes[clue.start.y + i][clue.start.x].letter = clue.state.constraints.charAt(i);
+                        }
+                    }
+                }
+            )
+            this.setState(state => {
+                return {boxes: clonedBoxes, clues: nonNullClues}
+            });
+        } else {
+            console.log("No solution!");
+        }
     }
 }
 

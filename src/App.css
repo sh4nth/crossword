@@ -24,7 +24,7 @@
   fill: white;
   stroke: rgb(55,55,55);
   stroke-width: 1;
-};
+}
 
 .blackSquare {
   display: flex;
@@ -33,9 +33,8 @@
   fill: black;
   stroke: rgb(55,55,55);
   stroke-width: 1;
-};
+}
 
-/* For some reason this gets stripped out by React, need to add it explicitly in index.html */
 .highlightSquare {
   display: flex;
   align-items: center;
@@ -43,7 +42,7 @@
   fill: yellow;
   stroke: rgb(55,55,55);
   stroke-width: 1;
-};
+}
 
 .clueText {
   display: flex;
@@ -59,4 +58,25 @@
   justify-content: center;
   fill: black;
   font-size: 10px;
-};
+}
+
+.clueList {
+  list-style: none;
+  margin-left: 0;
+   padding-left: 1em;
+   text-indent: 0em;
+}
+
+.crossword {
+  height: 500px;
+  width: 500px;
+}
+
+.container {
+  padding: 5%;
+}
+
+.extraWords {
+  max-width: 450px;
+  width: 450px;
+}

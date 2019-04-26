@@ -1,0 +1,1 @@
+export const words1 = ["A","I","O","X","S","J","B","R","N","E","Q","G","C","D","F","W","Y","V","H","M","K","U","L","P","T","Z",];
