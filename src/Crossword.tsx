@@ -1,9 +1,8 @@
 import React, { Component, MouseEvent, CSSProperties } from 'react';
 import { Square, boxSize, BoxProps, SquareType } from "./Square";
 import {cloneDeep, floor} from 'lodash';
-import Switch from '@material-ui/core/Switch';
 import {numberClues, Clue} from './Clue';
-import { Button, TextField } from '@material-ui/core';
+import { Button, Select, MenuItem } from '@material-ui/core';
 import { solve } from './Backtrack';
 
 export type Point = {
@@ -22,6 +21,7 @@ type State = {
     cursor: Point,
     mode: Mode,
     isAcross: boolean,
+    N: number,
 };
 
 function shouldBeBlack(i:number, j:number) {
@@ -32,7 +32,6 @@ function shouldBeBlack(i:number, j:number) {
     }
 }
 
-const N = 15;
 
 type CrosswordProps = {
     editable: boolean,
@@ -62,8 +61,8 @@ export class Crossword extends Component<CrosswordProps, State> {
 
     public onClick(event: MouseEvent) {
         let rect = event.currentTarget.getBoundingClientRect();
-        let x = floor(N * (event.clientX - rect.left) / rect.width);
-        let y = floor(N * (event.clientY - rect.top) / rect.height);
+        let x = floor(this.state.N * (event.clientX - rect.left) / rect.width);
+        let y = floor(this.state.N * (event.clientY - rect.top) / rect.height);
         console.log(x + ", " + y);
         let point = {x: x, y: y};
         this.setState(state => {
@@ -112,13 +111,13 @@ export class Crossword extends Component<CrosswordProps, State> {
             return p;
         }
         if (this.state.isAcross) {
-            if (p.x < N-1) {
+            if (p.x < this.state.N-1) {
                 return {x: p.x+1, y: p.y};
             } else {
                 return p;
             }
         } else {
-            if (p.y < N-1) {
+            if (p.y < this.state.N-1) {
                 return {x: p.x, y: p.y+1};
             } else {
                 return p;
@@ -163,7 +162,10 @@ export class Crossword extends Component<CrosswordProps, State> {
         if (!props.editable) {
             console.log("To implmenet loading crossword later");
         }
+        this.state = this.getStateForSize(15);
+    }
 
+    getStateForSize(N: number) {
         let boxes = [];
         for (var i = 0; i < N; i++) {
             let row = []
@@ -176,12 +178,14 @@ export class Crossword extends Component<CrosswordProps, State> {
             }
             boxes.push(row);
         }
-        this.state = { 
+
+        return { 
             boxes: boxes,
             clues: numberClues(boxes),
             cursor:{x: -1, y: -1}, 
             mode: Mode.SOLVE, 
-            isAcross: true};
+            isAcross: true,
+            N: N};
     }
 
     getHiddenBoxStyle() : CSSProperties {
@@ -192,10 +196,10 @@ export class Crossword extends Component<CrosswordProps, State> {
         }
         let size = this.div.clientWidth;
         return {
-            left: this.div.offsetLeft + size * (this.state.cursor.x / N),
-            top: this.div.offsetTop + size * (this.state.cursor.y / N),
-            width: size / N,
-            height: size/ N,
+            left: this.div.offsetLeft + size * (this.state.cursor.x / this.state.N),
+            top: this.div.offsetTop + size * (this.state.cursor.y / this.state.N),
+            width: size / this.state.N,
+            height: size/ this.state.N,
             position: "absolute",
             background: "transparent",
             border: "none",
@@ -220,7 +224,7 @@ export class Crossword extends Component<CrosswordProps, State> {
         <div ref={div => {this.div = div;}} className="crossword" tabIndex={0}>
             <svg 
                 onClick={e => this.onClick(e)}
-                id="crossword-svg" viewBox={"0 0 " + N*boxSize + " " + N*boxSize} xmlns="http://www.w3.org/2000/svg">
+                id="crossword-svg" viewBox={"0 0 " + this.state.N*boxSize + " " + this.state.N*boxSize} xmlns="http://www.w3.org/2000/svg">
                 {this.state.boxes.map((row) => (
                     row.map((b) => {
                     return <Square 
@@ -239,6 +243,10 @@ export class Crossword extends Component<CrosswordProps, State> {
                     let clonedBoxes = cloneBoxes(state.boxes, true, true);
                     return {boxes: clonedBoxes, clues: numberClues(clonedBoxes)}
                 })}>Clear</Button>
+                <Select value={this.state.N} onChange={e => this.setState(this.getStateForSize(+e.target.value))}>
+                <MenuItem value={5}>5</MenuItem>
+                <MenuItem value={15}>15</MenuItem>
+                </Select>
                 <br/>
                 <textarea className="extraWords" ref={t => {this.specialWords = t;}} />
             </div>
@@ -280,8 +288,8 @@ export class Crossword extends Component<CrosswordProps, State> {
         if(clues != null) {
             let nonNullClues = clues
             let clonedBoxes = cloneAndremoveHighlight(this.state.boxes);
-            for(let i=0; i<N; i++) {
-                for(let j=0; j<N; j++) {
+            for(let i=0; i<this.state.N; i++) {
+                for(let j=0; j<this.state.N; j++) {
                     clonedBoxes[i][j].letter = "";
                 }
             }
