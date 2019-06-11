@@ -24,8 +24,11 @@ type State = {
     N: number,
 };
 
-function shouldBeBlack(i:number, j:number) {
-    if (i%2 == 1 && j%2 == 1) {
+function shouldBeBlack(i:number, j:number, N:number) {
+    let XOR = (a:boolean, b:boolean) => (a || b) && !(a && b);
+    let mid = (N-1)/2
+    let isInFirstOrThirdQuadrant = (i > mid && j < mid) || (i < mid && j > mid);
+    if (i%2 == 1 &&  XOR(j%2 == 1, isInFirstOrThirdQuadrant)) {
         return SquareType.BLACK;
     } else {
         return SquareType.WHITE;
@@ -72,8 +75,10 @@ export class Crossword extends Component<CrosswordProps, State> {
             if (state.mode == Mode.GRID) {
                 if (clonedBoxes[y][x].fillType == SquareType.BLACK) {
                     clonedBoxes[y][x].fillType = SquareType.WHITE;
+                    clonedBoxes[state.N - 1 - y][state.N - 1 - x].fillType = SquareType.WHITE;
                 } else {
                     clonedBoxes[y][x].fillType = SquareType.BLACK;
+                    clonedBoxes[state.N - 1 - y][state.N - 1 - x].fillType = SquareType.BLACK;
                 }
                 clues = numberClues(clonedBoxes);
             } else {
@@ -162,7 +167,7 @@ export class Crossword extends Component<CrosswordProps, State> {
         if (!props.editable) {
             console.log("To implmenet loading crossword later");
         }
-        this.state = this.getStateForSize(15);
+        this.state = this.getStateForSize(11);
     }
 
     getStateForSize(N: number) {
@@ -171,7 +176,7 @@ export class Crossword extends Component<CrosswordProps, State> {
             let row = []
             for (var j = 0; j < N; j++) {
                 row.push({
-                    fillType: shouldBeBlack(i,j),
+                    fillType: shouldBeBlack(i,j,N),
                     letter: ".",
                     coords: {y: i, x: j},
                     clueNumber:""});
@@ -245,6 +250,8 @@ export class Crossword extends Component<CrosswordProps, State> {
                 })}>Clear</Button>
                 <Select value={this.state.N} onChange={e => this.setState(this.getStateForSize(+e.target.value))}>
                 <MenuItem value={5}>5</MenuItem>
+                <MenuItem value={7}>7</MenuItem>
+                <MenuItem value={11}>11</MenuItem>
                 <MenuItem value={15}>15</MenuItem>
                 </Select>
                 <br/>
