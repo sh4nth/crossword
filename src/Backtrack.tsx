@@ -38,7 +38,7 @@ function updateConstraintsAndCheckIsValid(clues: Array<Clue>) {
             if (!down.state.isFilled) {
                 down.setConstraint(across.start.y - down.start.y,  a_intersect);
             }
-            if (across.state.isFilled && down.state.isFilled && a_intersect != d_intersect) {
+            if (across.state.isFilled && down.state.isFilled && a_intersect !== d_intersect) {
                 return false;
             }
         }
@@ -65,9 +65,9 @@ export function solve(clues : Array<Clue>, additionalWords: Array<string>) {
     // initForBackTracking(clues);
     updateConstraintsAndCheckIsValid(clues);
     for (let i=2; i<=15; i++) {
-        wordsByLength[i] = additionalWords.filter(w => w.length == i).concat(dictsByLength[i]);
+        wordsByLength[i] = additionalWords.filter(w => w.length === i).concat(dictsByLength[i]);
     }
-    let usedWords = new Set();
+    let usedWords = new Set<string>();
     clues.filter(c => c.state.isFilled).map(c => c.state.constraints).forEach(w => usedWords.add(w));
     console.log(usedWords);
     return fill(clues, usedWords, 0);
@@ -90,7 +90,7 @@ function fill(clues : Array<Clue>, words:Set<string>, depth:number): Array<Clue>
     let unsolved = clues.filter(c => !c.state.isFilled);
 
 
-    if (unsolved.length == 0) {
+    if (unsolved.length === 0) {
         return clues;
     }
     
@@ -165,5 +165,5 @@ function find(clue:Clue, usedWords:Set<string>, start:number) : Guess {
 }
 
 function matches(constr: string, word:string) {
-    return word.search(constr) != -1;
+    return word.search(constr) !== -1;
 }

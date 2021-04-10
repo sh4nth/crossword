@@ -28,7 +28,7 @@ function shouldBeBlack(i:number, j:number, N:number) {
     let XOR = (a:boolean, b:boolean) => (a || b) && !(a && b);
     let mid = (N-1)/2
     let isInFirstOrThirdQuadrant = (i > mid && j < mid) || (i < mid && j > mid);
-    if (i%2 == 1 &&  XOR(j%2 == 1, isInFirstOrThirdQuadrant)) {
+    if (i%2 === 1 &&  XOR(j%2 === 1, isInFirstOrThirdQuadrant)) {
         return SquareType.BLACK;
     } else {
         return SquareType.WHITE;
@@ -43,7 +43,7 @@ type CrosswordProps = {
 function cloneBoxes(boxes: Array<Array<BoxProps>>, removeHighlight: boolean, clear:boolean) {
     let clonedBoxes = cloneDeep(boxes);
     clonedBoxes.forEach(row => row.forEach(box => {
-        if(removeHighlight && box.fillType == SquareType.ACTIVE) {
+        if(removeHighlight && box.fillType === SquareType.ACTIVE) {
             box.fillType = SquareType.WHITE;
         }
         if(clear) {
@@ -72,8 +72,8 @@ export class Crossword extends Component<CrosswordProps, State> {
             let clues = state.clues;
             let clonedBoxes = cloneAndremoveHighlight(state.boxes);
             let isAcross = state.isAcross;
-            if (state.mode == Mode.GRID) {
-                if (clonedBoxes[y][x].fillType == SquareType.BLACK) {
+            if (state.mode === Mode.GRID) {
+                if (clonedBoxes[y][x].fillType === SquareType.BLACK) {
                     clonedBoxes[y][x].fillType = SquareType.WHITE;
                     clonedBoxes[state.N - 1 - y][state.N - 1 - x].fillType = SquareType.WHITE;
                 } else {
@@ -96,11 +96,11 @@ export class Crossword extends Component<CrosswordProps, State> {
         let possibleClues = clues.filter(c => c.contains(point));
                 if (possibleClues.length > 2) {
                     throw new Error("Should not be possible");
-                } else if (possibleClues.length == 2) {
-                    let clue = possibleClues.filter(c => c.isAcross == isAcross)[0];
+                } else if (possibleClues.length === 2) {
+                    let clue = possibleClues.filter(c => c.isAcross === isAcross)[0];
                     clue.getPoints().forEach(
                             p => {clonedBoxes[p.y][p.x].fillType = SquareType.ACTIVE;});
-                } else if (possibleClues.length == 1) {
+                } else if (possibleClues.length === 1) {
                     let clue = possibleClues[0];
                     isAcross = clue.isAcross;
                     clue.getPoints().forEach(
@@ -131,7 +131,7 @@ export class Crossword extends Component<CrosswordProps, State> {
     }
 
     onToggleChange(e: any) {
-        let getNextMode = (mode:Mode) => {return mode == Mode.GRID? Mode.SOLVE : Mode.GRID};
+        let getNextMode = (mode:Mode) => {return mode === Mode.GRID? Mode.SOLVE : Mode.GRID};
         this.setState(state => {
             return {mode: getNextMode(state.mode), boxes: cloneAndremoveHighlight(state.boxes)}; });
     }
@@ -139,14 +139,14 @@ export class Crossword extends Component<CrosswordProps, State> {
     onInputBoxChange() {
         let x = this.state.cursor.x;
         let y = this.state.cursor.y;
-        if (x < 0 || y < 0 || this.state.boxes[y][x].fillType == SquareType.BLACK || !this.nameInput) {
+        if (x < 0 || y < 0 || this.state.boxes[y][x].fillType === SquareType.BLACK || !this.nameInput) {
             console.log("Ignoring changeEvent");
             return;
         }
 
         let pressedKey = this.nameInput.value;
         pressedKey = pressedKey.toUpperCase();
-        if (pressedKey == " " || pressedKey == "." || pressedKey == "") {
+        if (pressedKey === " " || pressedKey === "." || pressedKey === "") {
             // Clear the box
             pressedKey = ".";
         } else if (pressedKey > 'Z' || pressedKey < 'A') {
@@ -194,7 +194,7 @@ export class Crossword extends Component<CrosswordProps, State> {
     }
 
     getHiddenBoxStyle() : CSSProperties {
-        if(!this.div || this.state.mode == Mode.GRID) {
+        if(!this.div || this.state.mode === Mode.GRID) {
             return {
                 visibility: "collapse",
             };
@@ -242,7 +242,7 @@ export class Crossword extends Component<CrosswordProps, State> {
                 ))}
             </svg>
             <div style={this.hideIfNotEditable()}>
-                <Button onClick={e => this.onToggleChange(e)}>{this.state.mode == Mode.SOLVE ? "Edit Grid" : "Solve"}</Button>
+                <Button onClick={e => this.onToggleChange(e)}>{this.state.mode === Mode.SOLVE ? "Edit Grid" : "Solve"}</Button>
                 <Button onClick={e => this.onFillButtonClick(e)}>Fill</Button>
                 <Button onClick={e => this.setState(state => {
                     let clonedBoxes = cloneBoxes(state.boxes, true, true);
@@ -292,7 +292,7 @@ export class Crossword extends Component<CrosswordProps, State> {
             new Set(this.specialWords.value.toUpperCase().split(/[^A-Z]/)).forEach(s => additionalWords.push(s));
         }
         let clues = solve(this.state.clues, additionalWords);
-        if(clues != null) {
+        if(clues !== null) {
             let nonNullClues = clues
             let clonedBoxes = cloneAndremoveHighlight(this.state.boxes);
             for(let i=0; i<this.state.N; i++) {
