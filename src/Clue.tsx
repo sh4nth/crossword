@@ -70,14 +70,14 @@ export class Clue {
 
     public contains(point: Point) {
         if (this.isAcross) {
-            return (point.y == this.start.y) && (this.start.x <= point.x) && (point.x < this.start.x + this.length);
+            return (point.y === this.start.y) && (this.start.x <= point.x) && (point.x < this.start.x + this.length);
         } else {
-            return (point.x == this.start.x) && (this.start.y <= point.y) && (point.y < this.start.y + this.length);
+            return (point.x === this.start.x) && (this.start.y <= point.y) && (point.y < this.start.y + this.length);
         }
     }
 
     public intersects(other: Clue) {
-        if (other.isAcross == this.isAcross) {
+        if (other.isAcross === this.isAcross) {
             return null;
         }
         let across = other.isAcross ? other : this;
@@ -92,7 +92,7 @@ export class Clue {
     }
 
     public setConstraint(i:number, char:string) {
-        if(char.length != 1 || i >= this.state.constraints.length) {
+        if(char.length !== 1 || i >= this.state.constraints.length) {
             throw new Error(
                 "chr length must be 1 and " + i + " < " + this.state.constraints.length
                 + " -- " + this.start.x + "," + this.start.y + "(" + this.length + ")" 
@@ -100,7 +100,6 @@ export class Clue {
         }
 
         let oldConstraint = this.state.constraints;
-        let oldN = oldConstraint.length;
         this.state.constraints = oldConstraint.substr(0,i) + char + oldConstraint.substr(i+1);
     }
 }
@@ -113,49 +112,49 @@ export function numberClues(boxes: Array<Array<BoxProps>>): Array<Clue> {
     let currentClue : Clue | null = null;
 
     function goThrough(i: number, j: number, isAcross: boolean) {
-        if (i == N || j == N) {
-            if(currentClue != null) {
+        if (i === N || j === N) {
+            if(currentClue !== null) {
                 clues.push(currentClue)
             }
             currentClue = null;
             return;
         }
-        if(boxes[i][j].fillType != SquareType.BLACK) {
-            if (currentClue == null) {
+        if(boxes[i][j].fillType !== SquareType.BLACK) {
+            if (currentClue === null) {
                 currentClue = new Clue({start:{x:j, y:i}, isAcross: isAcross, length: 1, clueNumber: 0});
             } else {
                 currentClue.lengthen();
             }
         } else {
-            if(currentClue != null) {
+            if(currentClue !== null) {
                 clues.push(currentClue)
             }
             currentClue = null;
         }
     }
 
-    for(var i=0; i<N; i++) {
-        for(var j=0; j<N; j++) {
+    for(let i=0; i<N; i++) {
+        for(let j=0; j<N; j++) {
             boxes[i][j].clueNumber = "";
         }
     }
-    for(var i=0; i<N; i++) {
-        for(var j=0; j<N+1; j++) {
+    for(let i=0; i<N; i++) {
+        for(let j=0; j<N+1; j++) {
             goThrough(i, j, true);
         }
     }
 
-    for(var i=0; i<N; i++) {
-        for(var j=0; j<N+1; j++) {
+    for(let i=0; i<N; i++) {
+        for(let j=0; j<N+1; j++) {
             goThrough(j, i, false);
         }
     }
     let singleLengthClues = clues
-        .filter(clue => clue.length == 1);
+        .filter(clue => clue.length === 1);
     
     boxes.forEach(row => row.forEach(b => {
         // Boxes which are isolated in both directions should be blacked
-        if (singleLengthClues.filter(c=> c.start.x == b.coords.x && c.start.y == b.coords.y).length == 2) {
+        if (singleLengthClues.filter(c=> c.start.x === b.coords.x && c.start.y === b.coords.y).length === 2) {
             b.fillType = SquareType.BLACK;
         }}));
 
@@ -167,7 +166,7 @@ export function numberClues(boxes: Array<Array<BoxProps>>): Array<Clue> {
 
     for (let i=0; i<actualClues.length; i++) {
         let clue = actualClues[i];
-        if (boxes[clue.start.y][clue.start.x].clueNumber == "") {
+        if (boxes[clue.start.y][clue.start.x].clueNumber === "") {
             clueNumber++;
             boxes[clue.start.y][clue.start.x].clueNumber = "" + clueNumber;
         }

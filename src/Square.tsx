@@ -20,10 +20,6 @@ export class Square extends Component<BoxProps, {}> {
     pointToIdString(prefix:string) {
         return prefix + this.props.coords.x + "-" + this.props.coords.y;
     }
-    
-    constructor(props: BoxProps) {
-        super(props);
-    }
 
     public render() {
         let svgElements = [];
@@ -37,7 +33,7 @@ export class Square extends Component<BoxProps, {}> {
                 className={this.props.fillType}>
             </rect>);
         if (this.props.fillType) {
-            if (this.props.letter != ".") {
+            if (this.props.letter !== ".") {
                 svgElements.push(
                     <text
                         key={this.pointToIdString("text")}
@@ -46,7 +42,7 @@ export class Square extends Component<BoxProps, {}> {
                         className="clueText">{this.props.letter}
                     </text>);
             }
-            if (this.props.clueNumber != "") {
+            if (this.props.clueNumber !== "") {
                 svgElements.push(
                     <text
                         key={this.pointToIdString("clue")}
