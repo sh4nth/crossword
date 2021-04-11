@@ -20,6 +20,7 @@ export class Clue {
     start: Point;
     length: number;
     isAcross: boolean;
+    clueText: string;
     state: BacktrackingClueState;
 
     constructor(props: ClueType) {
@@ -27,6 +28,7 @@ export class Clue {
         this.start = props.start;
         this.length = props.length;
         this.isAcross = props.isAcross;
+        this.clueText = "";
         let constraints = Array(props.length + 1).join(".");
         this.state = {
             isBacktracking: false,
