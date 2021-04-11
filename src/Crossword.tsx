@@ -1,4 +1,4 @@
-import React, { Component, MouseEvent, CSSProperties } from 'react';
+import React, { Component, MouseEvent, CSSProperties, createRef, RefObject } from 'react';
 import { Square, boxSize, BoxProps, SquareType } from "./Square";
 import {cloneDeep, floor} from 'lodash';
 import {numberClues, Clue} from './Clue';
@@ -59,9 +59,9 @@ function cloneAndremoveHighlight(boxes: Array<Array<BoxProps>>) {
 }
 
 export class Crossword extends Component<CrosswordProps, State> {
-    nameInput: HTMLInputElement | null | undefined;
-    div: HTMLDivElement | null | undefined;
-    specialWords: HTMLTextAreaElement | null |  undefined;
+    nameInput: RefObject<HTMLInputElement> = createRef<HTMLInputElement>();
+    div: RefObject<HTMLDivElement> = createRef<HTMLDivElement>();
+    specialWords: RefObject<HTMLInputElement> = createRef<HTMLInputElement>();
 
     public onClick(event: MouseEvent) {
         let rect = event.currentTarget.getBoundingClientRect();
@@ -87,8 +87,8 @@ export class Crossword extends Component<CrosswordProps, State> {
             }
             return {boxes:clonedBoxes, cursor:point, clues: clues, isAcross: isAcross};
         });
-        if (this.nameInput) {
-            this.nameInput.focus();
+        if (this.nameInput.current) {
+            this.nameInput.current.focus();
         }
     }
 
@@ -140,7 +140,7 @@ export class Crossword extends Component<CrosswordProps, State> {
     onSave() {
         console.log("Saving .puz is stubbed for now.");
         // TODO: Only allow exporting filled crosswords
-        let buffer = Puz.encode({
+        let puzzle = {
             meta: {
                 title: "Crossword by Shanth",
                 author: "Shanthanu",
@@ -155,7 +155,8 @@ export class Crossword extends Component<CrosswordProps, State> {
                 down: ["Down clue"],
             },
             circles: "",
-        });
+        };
+        let buffer : Uint8Array = Puz.encode(puzzle);
         console.log(buffer);
     }
 
@@ -217,15 +218,15 @@ export class Crossword extends Component<CrosswordProps, State> {
     }
 
     getHiddenBoxStyle() : CSSProperties {
-        if(!this.div || this.state.mode === Mode.GRID) {
+        if(!this.div.current || this.state.mode === Mode.GRID) {
             return {
                 visibility: "collapse",
             };
         }
-        let size = this.div.clientWidth;
+        let size = this.div.current.clientWidth;
         return {
-            left: this.div.offsetLeft + size * (this.state.cursor.x / this.state.N),
-            top: this.div.offsetTop + size * (this.state.cursor.y / this.state.N),
+            left: this.div.current.offsetLeft + size * (this.state.cursor.x / this.state.N),
+            top: this.div.current.offsetTop + size * (this.state.cursor.y / this.state.N),
             width: size / this.state.N,
             height: size/ this.state.N,
             position: "absolute",
@@ -249,7 +250,7 @@ export class Crossword extends Component<CrosswordProps, State> {
     render() {
         console.log("Render Crossword");
         return (
-        <div ref={div => {this.div = div;}} className="crossword" tabIndex={0}>
+        <div ref={this.div} className="crossword" tabIndex={0}>
             <svg 
                 onClick={e => this.onClick(e)}
                 id="crossword-svg" viewBox={"0 0 " + this.state.N*boxSize + " " + this.state.N*boxSize} xmlns="http://www.w3.org/2000/svg">
@@ -279,7 +280,7 @@ export class Crossword extends Component<CrosswordProps, State> {
                 </Select>
                 <Button onClick={e => this.onSave()}>Save</Button>
                 <br/>
-                <textarea className="extraWords" ref={t => {this.specialWords = t;}} />
+                <textarea className="extraWords" ref={this.specialWords} />
             </div>
             <input value="" ref={input => {this.nameInput = input;}} 
             maxLength={1} 
@@ -295,7 +296,10 @@ export class Crossword extends Component<CrosswordProps, State> {
                 Across
                 <ul className="clueList">
                     {this.state.clues.filter(c=> c.isAcross).map(c => {
-                        return <li key={c.clueNumber + " " + c.isAcross}>{c.clueNumber}. {c.state.constraints} ({c.length}) <Input key={"clue" + c.clueNumber + " " + c.isAcross} ref={t => {c.clueText = t? t.value : "N/A";}} /></li>
+                        return <li key={c.clueNumber + " " + c.isAcross}>
+                            {c.clueNumber}. {c.state.constraints} ({c.length})
+                             <Input key={"clue" + c.clueNumber + " " + c.isAcross} ref={t => { c.clueText = t ? t.value : "N/A"; }} />
+                        </li>
                     })}
                 </ul>
             </div>
@@ -312,8 +316,8 @@ export class Crossword extends Component<CrosswordProps, State> {
 
     onFillButtonClick(ignored: any) {
         let additionalWords : Array<string> = [];
-        if (this.specialWords) {
-            new Set(this.specialWords.value.toUpperCase().split(/[^A-Z]/)).forEach(s => additionalWords.push(s));
+        if (this.specialWords.current) {
+            new Set(this.specialWords.current.value.toUpperCase().split(/[^A-Z]/)).forEach(s => additionalWords.push(s));
         }
         let clues = solve(this.state.clues, additionalWords);
         if(clues !== null) {
