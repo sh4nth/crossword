@@ -12,6 +12,7 @@
     "@types/react-dom": "16.8.4",
     "json": "^9.0.6",
     "json-loader": "^0.5.7",
+    "puzjs": "^1.0.2",
     "react": "^16.14.0",
     "react-dom": "^16.14.0",
     "react-scripts": "^4.0.3",

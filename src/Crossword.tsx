@@ -2,8 +2,9 @@ import React, { Component, MouseEvent, CSSProperties } from 'react';
 import { Square, boxSize, BoxProps, SquareType } from "./Square";
 import {cloneDeep, floor} from 'lodash';
 import {numberClues, Clue} from './Clue';
-import { Button, Select, MenuItem } from '@material-ui/core';
+import { Button, Select, MenuItem, Input } from '@material-ui/core';
 import { solve } from './Backtrack';
+import Puz from 'puzjs';
 
 export type Point = {
     x: number,
@@ -136,6 +137,28 @@ export class Crossword extends Component<CrosswordProps, State> {
             return {mode: getNextMode(state.mode), boxes: cloneAndremoveHighlight(state.boxes)}; });
     }
 
+    onSave() {
+        console.log("Saving .puz is stubbed for now.");
+        // TODO: Only allow exporting filled crosswords
+        let buffer = Puz.encode({
+            meta: {
+                title: "Crossword by Shanth",
+                author: "Shanthanu",
+                copyright: "CC",
+            },
+            // puzjs expects the solved crossword to be populated in grid
+            grid: this.state.boxes.map(
+                row => row.map(
+                    box => box.fillType === SquareType.BLACK ? "." : box.letter)),
+            clues: {
+                across: ["Across clue"],
+                down: ["Down clue"],
+            },
+            circles: "",
+        });
+        console.log(buffer);
+    }
+
     onInputBoxChange() {
         let x = this.state.cursor.x;
         let y = this.state.cursor.y;
@@ -254,6 +277,7 @@ export class Crossword extends Component<CrosswordProps, State> {
                 <MenuItem value={11}>11</MenuItem>
                 <MenuItem value={15}>15</MenuItem>
                 </Select>
+                <Button onClick={e => this.onSave()}>Save</Button>
                 <br/>
                 <textarea className="extraWords" ref={t => {this.specialWords = t;}} />
             </div>
@@ -271,7 +295,7 @@ export class Crossword extends Component<CrosswordProps, State> {
                 Across
                 <ul className="clueList">
                     {this.state.clues.filter(c=> c.isAcross).map(c => {
-                        return <li key={c.clueNumber + " " + c.isAcross}>{c.clueNumber}. {c.state.constraints} ({c.length})</li>
+                        return <li key={c.clueNumber + " " + c.isAcross}>{c.clueNumber}. {c.state.constraints} ({c.length}) <Input key={"clue" + c.clueNumber + " " + c.isAcross} ref={t => {c.clueText = t? t.value : "N/A";}} /></li>
                     })}
                 </ul>
             </div>
