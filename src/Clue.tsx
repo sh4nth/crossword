@@ -1,5 +1,6 @@
 import {BoxProps, SquareType} from "./Square";
 import {Point} from "./Crossword";
+import { createRef, RefObject } from "react";
 
 type ClueType = {
     clueNumber: number,
@@ -20,15 +21,15 @@ export class Clue {
     start: Point;
     length: number;
     isAcross: boolean;
-    clueText: string;
     state: BacktrackingClueState;
+    clueTextRef: RefObject<HTMLInputElement>;
 
     constructor(props: ClueType) {
         this.clueNumber = props.clueNumber;
         this.start = props.start;
         this.length = props.length;
         this.isAcross = props.isAcross;
-        this.clueText = "";
+        this.clueTextRef = createRef<HTMLInputElement>();
         let constraints = Array(props.length + 1).join(".");
         this.state = {
             isBacktracking: false,

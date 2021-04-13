@@ -1,10 +1,10 @@
-import React, { Component, MouseEvent, CSSProperties, createRef, RefObject } from 'react';
-import { Square, boxSize, BoxProps, SquareType } from "./Square";
-import {cloneDeep, floor} from 'lodash';
-import {numberClues, Clue} from './Clue';
 import { Button, Select, MenuItem, Input } from '@material-ui/core';
-import { solve } from './Backtrack';
+import React, { Component, MouseEvent, CSSProperties, createRef, RefObject } from 'react';
+import { cloneDeep, floor } from 'lodash';
 import Puz from 'puzjs';
+import { solve } from './Backtrack';
+import { numberClues, Clue } from './Clue';
+import { Square, boxSize, BoxProps, SquareType } from "./Square";
 
 export type Point = {
     x: number,
@@ -140,6 +140,8 @@ export class Crossword extends Component<CrosswordProps, State> {
     onSave() {
         console.log("Saving .puz is stubbed for now.");
         // TODO: Only allow exporting filled crosswords
+        let across = this.state.clues.filter(c => c.isAcross).map(c => c.clueTextRef.current.value);
+        let down = this.state.clues.filter(c => !c.isAcross).map(c => c.clueTextRef.current.value);
         let puzzle = {
             meta: {
                 title: "Crossword by Shanth",
@@ -151,24 +153,34 @@ export class Crossword extends Component<CrosswordProps, State> {
                 row => row.map(
                     box => box.fillType === SquareType.BLACK ? "." : box.letter)),
             clues: {
-                across: ["Across clue"],
-                down: ["Down clue"],
+                across: across,
+                down: down,
             },
             circles: "",
         };
         let buffer : Uint8Array = Puz.encode(puzzle);
-        console.log(buffer);
+        let printable = "";
+        buffer.forEach(i => {
+            if (i >= 32) {
+                printable += String.fromCharCode(i);
+            } else if (i === 0) {
+                printable += "\\0\n";
+            } else {
+                printable += "<" + i + ">";
+            }
+        });
+        console.log(printable);
     }
 
     onInputBoxChange() {
         let x = this.state.cursor.x;
         let y = this.state.cursor.y;
-        if (x < 0 || y < 0 || this.state.boxes[y][x].fillType === SquareType.BLACK || !this.nameInput) {
+        if (x < 0 || y < 0 || this.state.boxes[y][x].fillType === SquareType.BLACK || !this.nameInput.current) {
             console.log("Ignoring changeEvent");
             return;
         }
 
-        let pressedKey = this.nameInput.value;
+        let pressedKey = this.nameInput.current.value;
         pressedKey = pressedKey.toUpperCase();
         if (pressedKey === " " || pressedKey === "." || pressedKey === "") {
             // Clear the box
@@ -282,7 +294,7 @@ export class Crossword extends Component<CrosswordProps, State> {
                 <br/>
                 <textarea className="extraWords" ref={this.specialWords} />
             </div>
-            <input value="" ref={input => {this.nameInput = input;}} 
+            <input value="" ref={this.nameInput} 
             maxLength={1} 
             onClick={e => {this.setState(state => {
                 let clonedBoxes = cloneAndremoveHighlight(state.boxes);
@@ -293,13 +305,12 @@ export class Crossword extends Component<CrosswordProps, State> {
             onChange={e => this.onInputBoxChange()} 
             style={this.getHiddenBoxStyle()}/>
             <div>
-                Across
+                    Across
                 <ul className="clueList">
-                    {this.state.clues.filter(c=> c.isAcross).map(c => {
-                        return <li key={c.clueNumber + " " + c.isAcross}>
-                            {c.clueNumber}. {c.state.constraints} ({c.length})
-                             <Input key={"clue" + c.clueNumber + " " + c.isAcross} ref={t => { c.clueText = t ? t.value : "N/A"; }} />
-                        </li>
+                        {this.state.clues.filter(c => c.isAcross).map(c => {
+                            return <li key={c.clueNumber + "A"}>
+                                {c.clueNumber}. <Input inputRef={c.clueTextRef} /> ({c.length}) : {c.state.constraints}
+                            </li>
                     })}
                 </ul>
             </div>
@@ -307,7 +318,9 @@ export class Crossword extends Component<CrosswordProps, State> {
                 Down
                 <ul className="clueList">
                     {this.state.clues.filter(c=> !c.isAcross).map(c => {
-                        return <li key={c.clueNumber + " " + c.isAcross}>{c.clueNumber}. {c.state.constraints} ({c.length})</li>
+                        return <li key={c.clueNumber + "D"}>
+                        {c.clueNumber}. <Input inputRef={c.clueTextRef} /> ({c.length}) : {c.state.constraints}
+                    </li>
                     })}
                 </ul>
             </div>
