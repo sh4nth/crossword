@@ -287,6 +287,7 @@ export class Crossword extends Component<CrosswordProps, State> {
                 <Select value={this.state.N} onChange={e => this.setState(this.getStateForSize(+e.target.value))}>
                 <MenuItem value={5}>5</MenuItem>
                 <MenuItem value={7}>7</MenuItem>
+                <MenuItem value={9}>9</MenuItem>
                 <MenuItem value={11}>11</MenuItem>
                 <MenuItem value={15}>15</MenuItem>
                 </Select>
