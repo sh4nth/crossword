@@ -35,15 +35,15 @@ function shouldBeBlack(i:number, j:number, N:number) {
             return SquareType.BLACK;
         } else if (i === 9 && Math.abs(j-(N-1)/2) <= 1) {
             return SquareType.BLACK;
-        } else if (i === j && (i === 3 || i == 11)) {
+        } else if (i === j && (i === 3 || i === 11)) {
             return SquareType.BLACK;
-        } else if ((i + j === 14) && (i == 3 || i ===4)) {
+        } else if ((i + j === 14) && (i === 3 || i ===4)) {
             return SquareType.BLACK;
-        } else if ((i + j === 14) && (i == 10 || i ===11)) {
+        } else if ((i + j === 14) && (i === 10 || i ===11)) {
             return SquareType.BLACK;
-        } else if ((i + j == 10) && (i == 6 || i ===7)) {
+        } else if ((i + j === 10) && (i === 6 || i ===7)) {
             return SquareType.BLACK;
-        } else if ((i + j == 18) && (i == 8 || i ===7)) {
+        } else if ((i + j === 18) && (i === 8 || i ===7)) {
             return SquareType.BLACK;
         }
         return SquareType.WHITE;
