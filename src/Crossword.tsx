@@ -159,6 +159,16 @@ export class Crossword extends Component<CrosswordProps, State> {
             return {mode: getNextMode(state.mode), boxes: cloneAndremoveHighlight(state.boxes)}; });
     }
 
+    onClueLock(clue: Clue) {
+        let shouldBeLocked = !clue.state.isLocked;
+        clue.state.isLocked = shouldBeLocked;
+        clue.state.isFilled = shouldBeLocked;
+        this.setState(state => {
+            return {
+                clues: state.clues
+            }; });
+    }
+
     onSave() {
         console.log("Saving .puz is stubbed for now.");
         // TODO: Only allow exporting filled crosswords
@@ -331,7 +341,9 @@ export class Crossword extends Component<CrosswordProps, State> {
                 <ul className="clueList">
                         {this.state.clues.filter(c => c.isAcross).map(c => {
                             return <li key={c.clueNumber + "A"}>
-                                {c.clueNumber}. <Input inputRef={c.clueTextRef} /> ({c.length}) : {c.state.constraints}
+                                {c.clueNumber}. <Input inputRef={c.clueTextRef} /> ({c.length}) :
+                                <Button onClick={e => this.onClueLock(c)}>{c.state.isLocked ? "Unlock" : "Lock"}</Button>
+                                 {c.state.constraints}
                             </li>
                     })}
                 </ul>
@@ -341,7 +353,9 @@ export class Crossword extends Component<CrosswordProps, State> {
                 <ul className="clueList">
                     {this.state.clues.filter(c=> !c.isAcross).map(c => {
                         return <li key={c.clueNumber + "D"}>
-                        {c.clueNumber}. <Input inputRef={c.clueTextRef} /> ({c.length}) : {c.state.constraints}
+                        {c.clueNumber}. <Input inputRef={c.clueTextRef} /> ({c.length}) : 
+                        <Button onClick={e => this.onClueLock(c)}>{c.state.isLocked ? "Unlock" : "Lock"}</Button>
+                {c.state.constraints}
                     </li>
                     })}
                 </ul>

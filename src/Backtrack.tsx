@@ -50,10 +50,13 @@ function updateConstraintsAndCheckIsValid(clues: Array<Clue>) {
 function initForBackTracking(clues: Array<Clue>) {
     console.log("InBacktr");
     for(let i=0; i<clues.length; i++) {
-        clues[i].clearConstraints();
-        clues[i].state.isBacktracking = true;
-        clues[i].state.isFilled = false;
-        clues[i].state.intersectingClues = [];
+        let clue = clues[i];
+        if (!clue.state.isLocked) {
+            clue.clearConstraints();
+            clue.state.isBacktracking = true;
+            clue.state.isFilled = false;
+        }
+        // clue.state.intersectingClues = [];
     }
 }
 
@@ -62,7 +65,7 @@ let MAX_TRIES = 300;
 
 export function solve(clues : Array<Clue>, additionalWords: Array<string>) {
     totalTries = 0;
-    // initForBackTracking(clues);
+    initForBackTracking(clues);
     updateConstraintsAndCheckIsValid(clues);
     for (let i=2; i<=15; i++) {
         wordsByLength[i] = additionalWords.filter(w => w.length === i).concat(dictsByLength[i]);
@@ -81,7 +84,7 @@ function fill(clues : Array<Clue>, words:Set<string>, depth:number): Array<Clue>
         return clues;
     }
 
-    if (depth > 40) {
+    if (depth > 80) {
         throw new Error("Recursion depth");
     }
     let n = clues.filter(c => c.state.isFilled).length;
