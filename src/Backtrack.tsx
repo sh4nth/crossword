@@ -92,6 +92,12 @@ function fill(clues : Array<Clue>, words:Set<string>, depth:number): Array<Clue>
     console.log(clues.map(c=>c.state.constraints));
     let unsolved = clues.filter(c => !c.state.isFilled);
 
+    // Try to solve more constrained words first
+    unsolved.sort((c1, c2) => {
+        let n1 = c1.state.intersectingClues.filter(c=> c.state.isFilled).length;
+        let n2 = c2.state.intersectingClues.filter(c=> c.state.isFilled).length;
+        return n2 - n1;
+    });
 
     if (unsolved.length === 0) {
         return clues;
