@@ -190,6 +190,6 @@ export function numberClues(boxes: Array<Array<BoxProps>>): Array<Clue> {
             }
         }
     }
-
+    console.log("Number clues: " + actualClues.length); 
     return actualClues;
 }

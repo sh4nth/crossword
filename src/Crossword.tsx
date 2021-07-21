@@ -29,7 +29,7 @@ function shouldBeBlack(i:number, j:number, N:number) {
     if (N === 15) {
         if ((i<3 || i>=N-3) && (j === 5 || j === 9)) {
             return SquareType.BLACK;
-        } else if ((j<3 || j >=N-3) && (i === 5 || i === 9)) {
+        } else if ((j<3 && i === 6) || (j >=N-3 && i === 8)) {
             return SquareType.BLACK;
         } else if (i === 5 && Math.abs(j-(N-1)/2) <= 1) {
             return SquareType.BLACK;
@@ -37,13 +37,13 @@ function shouldBeBlack(i:number, j:number, N:number) {
             return SquareType.BLACK;
         } else if (i === j && (i === 3 || i === 11)) {
             return SquareType.BLACK;
-        } else if ((i + j === 14) && (i === 3 || i ===4)) {
+        } else if ((i + j === 14) && (i === 3 || i === 4)) {
             return SquareType.BLACK;
         } else if ((i + j === 14) && (i === 10 || i ===11)) {
             return SquareType.BLACK;
-        } else if ((i + j === 10) && (i === 6 || i ===7)) {
+        } else if ((i === 10 && j === 3) || (i === 4 && j ===11)) {
             return SquareType.BLACK;
-        } else if ((i + j === 18) && (i === 8 || i ===7)) {
+        } else if ((i === 7) && ( j === 4 || j ===9 || j === 5 || j === 10)) {
             return SquareType.BLACK;
         }
         return SquareType.WHITE;
