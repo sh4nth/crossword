@@ -12,6 +12,7 @@ type ClueType = {
 type BacktrackingClueState = {
     isBacktracking: boolean,
     isFilled: boolean,
+    isLocked: boolean,
     constraints: string,
     intersectingClues: Array<Clue>,
 }
@@ -34,6 +35,7 @@ export class Clue {
         this.state = {
             isBacktracking: false,
             isFilled: false,
+            isLocked: false,
             constraints:constraints,
             intersectingClues:[]};
     }
@@ -190,6 +192,6 @@ export function numberClues(boxes: Array<Array<BoxProps>>): Array<Clue> {
             }
         }
     }
-
+    console.log("Number clues: " + actualClues.length); 
     return actualClues;
 }

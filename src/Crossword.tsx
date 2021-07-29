@@ -29,21 +29,21 @@ function shouldBeBlack(i:number, j:number, N:number) {
     if (N === 15) {
         if ((i<3 || i>=N-3) && (j === 5 || j === 9)) {
             return SquareType.BLACK;
-        } else if ((j<3 || j >=N-3) && (i === 5 || i === 9)) {
+        } else if ((j<3 && i === 6) || (j >=N-3 && i === 8)) {
             return SquareType.BLACK;
         } else if (i === 5 && Math.abs(j-(N-1)/2) <= 1) {
             return SquareType.BLACK;
         } else if (i === 9 && Math.abs(j-(N-1)/2) <= 1) {
             return SquareType.BLACK;
-        } else if (i === j && (i === 3 || i == 11)) {
+        } else if (i === j && (i === 3 || i === 11)) {
             return SquareType.BLACK;
-        } else if ((i + j === 14) && (i == 3 || i ===4)) {
+        } else if ((i + j === 14) && (i === 3 || i === 4)) {
             return SquareType.BLACK;
-        } else if ((i + j === 14) && (i == 10 || i ===11)) {
+        } else if ((i + j === 14) && (i === 10 || i ===11)) {
             return SquareType.BLACK;
-        } else if ((i + j == 10) && (i == 6 || i ===7)) {
+        } else if ((i === 10 && j === 3) || (i === 4 && j ===11)) {
             return SquareType.BLACK;
-        } else if ((i + j == 18) && (i == 8 || i ===7)) {
+        } else if ((i === 7) && ( j === 4 || j ===9 || j === 5 || j === 10)) {
             return SquareType.BLACK;
         }
         return SquareType.WHITE;
@@ -69,7 +69,7 @@ function cloneBoxes(boxes: Array<Array<BoxProps>>, removeHighlight: boolean, cle
         if(removeHighlight && box.fillType === SquareType.ACTIVE) {
             box.fillType = SquareType.WHITE;
         }
-        if(clear) {
+        if(clear && box.fillType !== SquareType.LOCKED) {
             box.letter = ".";
         }
     }));
@@ -78,6 +78,26 @@ function cloneBoxes(boxes: Array<Array<BoxProps>>, removeHighlight: boolean, cle
 
 function cloneAndremoveHighlight(boxes: Array<Array<BoxProps>>) {
     return cloneBoxes(boxes, true, false);
+}
+
+function lockClue(boxes: Array<Array<BoxProps>>, clue: Clue) {
+    let clonedBoxes = cloneDeep(boxes);
+    let startX = clue.start.x;
+    let startY = clue.start.y;
+    let box = clonedBoxes[startY][startX];
+    for (let i = 0; i<clue.length; i++) {
+        if (clue.isAcross) {
+            box = clonedBoxes[startY][startX + i];
+        } else {
+            box = clonedBoxes[startY + i][startX];
+        }
+        if (clue.state.isLocked) {
+            box.fillType = SquareType.LOCKED;
+        } else {
+            box.fillType = SquareType.ACTIVE;
+        }
+    }
+    return clonedBoxes;
 }
 
 export class Crossword extends Component<CrosswordProps, State> {
@@ -122,12 +142,22 @@ export class Crossword extends Component<CrosswordProps, State> {
                 } else if (possibleClues.length === 2) {
                     let clue = possibleClues.filter(c => c.isAcross === isAcross)[0];
                     clue.getPoints().forEach(
-                            p => {clonedBoxes[p.y][p.x].fillType = SquareType.ACTIVE;});
+                            p => {
+                                let box = clonedBoxes[p.y][p.x];
+                                if (box.fillType !== SquareType.LOCKED) {
+                                    box.fillType = SquareType.ACTIVE;
+                                }
+                            });
                 } else if (possibleClues.length === 1) {
                     let clue = possibleClues[0];
                     isAcross = clue.isAcross;
                     clue.getPoints().forEach(
-                            p => {clonedBoxes[p.y][p.x].fillType = SquareType.ACTIVE;});
+                        p => {
+                            let box = clonedBoxes[p.y][p.x];
+                            if (box.fillType !== SquareType.LOCKED) {
+                                box.fillType = SquareType.ACTIVE;
+                            }
+                        });
                 } else {
                     console.log("No clues at this point");
                 }
@@ -157,6 +187,18 @@ export class Crossword extends Component<CrosswordProps, State> {
         let getNextMode = (mode:Mode) => {return mode === Mode.GRID? Mode.SOLVE : Mode.GRID};
         this.setState(state => {
             return {mode: getNextMode(state.mode), boxes: cloneAndremoveHighlight(state.boxes)}; });
+    }
+
+    onClueLock(clue: Clue) {
+        let shouldBeLocked = !clue.state.isLocked;
+        clue.state.isLocked = shouldBeLocked;
+        clue.state.isFilled = shouldBeLocked;
+        let clonedBoxes = lockClue(this.state.boxes, clue);
+        this.setState(state => {
+            return {
+                clues: state.clues,
+                boxes: clonedBoxes
+            }; });
     }
 
     onSave() {
@@ -331,7 +373,9 @@ export class Crossword extends Component<CrosswordProps, State> {
                 <ul className="clueList">
                         {this.state.clues.filter(c => c.isAcross).map(c => {
                             return <li key={c.clueNumber + "A"}>
-                                {c.clueNumber}. <Input inputRef={c.clueTextRef} /> ({c.length}) : {c.state.constraints}
+                                {c.clueNumber}. <Input inputRef={c.clueTextRef} /> ({c.length}) :
+                                <Button onClick={e => this.onClueLock(c)}>{c.state.isLocked ? "Unlock" : "Lock"}</Button>
+                                 {c.state.constraints}
                             </li>
                     })}
                 </ul>
@@ -341,7 +385,9 @@ export class Crossword extends Component<CrosswordProps, State> {
                 <ul className="clueList">
                     {this.state.clues.filter(c=> !c.isAcross).map(c => {
                         return <li key={c.clueNumber + "D"}>
-                        {c.clueNumber}. <Input inputRef={c.clueTextRef} /> ({c.length}) : {c.state.constraints}
+                        {c.clueNumber}. <Input inputRef={c.clueTextRef} /> ({c.length}) : 
+                        <Button onClick={e => this.onClueLock(c)}>{c.state.isLocked ? "Unlock" : "Lock"}</Button>
+                {c.state.constraints}
                     </li>
                     })}
                 </ul>
