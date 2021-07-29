@@ -12,6 +12,7 @@ export enum SquareType {
     BLACK = "blackSquare",
     WHITE = "whiteSquare",
     ACTIVE = "highlightSquare",
+    LOCKED = "lockedSquare",
 }
 
 export const boxSize = 40;

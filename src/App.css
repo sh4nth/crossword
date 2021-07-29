@@ -44,6 +44,16 @@
   stroke-width: 1;
 }
 
+.lockedSquare {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration-color: red;
+  fill: plum;
+  stroke: rgb(55,55,55);
+  stroke-width: 1;
+}
+
 .clueText {
   display: flex;
   align-items: center;

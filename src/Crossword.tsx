@@ -69,7 +69,7 @@ function cloneBoxes(boxes: Array<Array<BoxProps>>, removeHighlight: boolean, cle
         if(removeHighlight && box.fillType === SquareType.ACTIVE) {
             box.fillType = SquareType.WHITE;
         }
-        if(clear) {
+        if(clear && box.fillType !== SquareType.LOCKED) {
             box.letter = ".";
         }
     }));
@@ -78,6 +78,26 @@ function cloneBoxes(boxes: Array<Array<BoxProps>>, removeHighlight: boolean, cle
 
 function cloneAndremoveHighlight(boxes: Array<Array<BoxProps>>) {
     return cloneBoxes(boxes, true, false);
+}
+
+function lockClue(boxes: Array<Array<BoxProps>>, clue: Clue) {
+    let clonedBoxes = cloneDeep(boxes);
+    let startX = clue.start.x;
+    let startY = clue.start.y;
+    let box = clonedBoxes[startY][startX];
+    for (let i = 0; i<clue.length; i++) {
+        if (clue.isAcross) {
+            box = clonedBoxes[startY][startX + i];
+        } else {
+            box = clonedBoxes[startY + i][startX];
+        }
+        if (clue.state.isLocked) {
+            box.fillType = SquareType.LOCKED;
+        } else {
+            box.fillType = SquareType.ACTIVE;
+        }
+    }
+    return clonedBoxes;
 }
 
 export class Crossword extends Component<CrosswordProps, State> {
@@ -122,12 +142,22 @@ export class Crossword extends Component<CrosswordProps, State> {
                 } else if (possibleClues.length === 2) {
                     let clue = possibleClues.filter(c => c.isAcross === isAcross)[0];
                     clue.getPoints().forEach(
-                            p => {clonedBoxes[p.y][p.x].fillType = SquareType.ACTIVE;});
+                            p => {
+                                let box = clonedBoxes[p.y][p.x];
+                                if (box.fillType !== SquareType.LOCKED) {
+                                    box.fillType = SquareType.ACTIVE;
+                                }
+                            });
                 } else if (possibleClues.length === 1) {
                     let clue = possibleClues[0];
                     isAcross = clue.isAcross;
                     clue.getPoints().forEach(
-                            p => {clonedBoxes[p.y][p.x].fillType = SquareType.ACTIVE;});
+                        p => {
+                            let box = clonedBoxes[p.y][p.x];
+                            if (box.fillType !== SquareType.LOCKED) {
+                                box.fillType = SquareType.ACTIVE;
+                            }
+                        });
                 } else {
                     console.log("No clues at this point");
                 }
@@ -163,9 +193,11 @@ export class Crossword extends Component<CrosswordProps, State> {
         let shouldBeLocked = !clue.state.isLocked;
         clue.state.isLocked = shouldBeLocked;
         clue.state.isFilled = shouldBeLocked;
+        let clonedBoxes = lockClue(this.state.boxes, clue);
         this.setState(state => {
             return {
-                clues: state.clues
+                clues: state.clues,
+                boxes: clonedBoxes
             }; });
     }
 
