@@ -61,7 +61,7 @@ function initForBackTracking(clues: Array<Clue>) {
 }
 
 let totalTries = 0;
-let MAX_TRIES = 300;
+let MAX_TRIES = 3000;
 
 export function solve(clues : Array<Clue>, additionalWords: Array<string>) {
     totalTries = 0;
@@ -107,6 +107,7 @@ function fill(clues : Array<Clue>, words:Set<string>, depth:number): Array<Clue>
         let clue = unsolved[i];
         let guess = find(clue, words, 0);
         if (guess == null) {
+            console.log("stuck on " + clue.clueNumber + (clue.isAcross? "A" : "D")); 
             return null;
         }
     }
@@ -129,6 +130,9 @@ function fill(clues : Array<Clue>, words:Set<string>, depth:number): Array<Clue>
             words.delete(guess.word);
             updateConstraintsAndCheckIsValid(clues);
             guess = find(clue, words, guess.index+1);
+            if (guess === null) {
+                console.log("stuck on " + clue.clueNumber + (clue.isAcross? "A" : "D")); 
+            }
         }
     }
     return null;
